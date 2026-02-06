@@ -73,7 +73,11 @@ def get_history(ticker: str, period: str = "1y") -> pd.DataFrame:
 
     def _fetch():
         try:
-            return yf.download(sym, period=period, interval="1d", progress=False, auto_adjust=True)
+            df = yf.download(sym, period=period, interval="1d", progress=False, auto_adjust=True)
+            # Handle MultiIndex columns from yfinance (e.g., ('Close', 'AAPL'))
+            if isinstance(df.columns, pd.MultiIndex):
+                df.columns = df.columns.get_level_values(0)
+            return df
         except Exception:
             return pd.DataFrame()
 
