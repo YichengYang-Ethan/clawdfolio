@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime
 from typing import TYPE_CHECKING
 
 from ..core.types import Alert, AlertSeverity, AlertType
@@ -37,7 +36,7 @@ class PriceMonitor:
     last_alerts: dict[str, dict] = field(default_factory=dict)
 
     @classmethod
-    def from_config(cls, config: "Config") -> "PriceMonitor":
+    def from_config(cls, config: Config) -> PriceMonitor:
         """Create monitor from config."""
         return cls(
             top10_threshold=config.alerts.single_stock_threshold_top10,
@@ -45,7 +44,7 @@ class PriceMonitor:
             pnl_trigger=config.alerts.pnl_trigger,
         )
 
-    def check_portfolio(self, portfolio: "Portfolio") -> list[Alert]:
+    def check_portfolio(self, portfolio: Portfolio) -> list[Alert]:
         """Check portfolio for price alerts.
 
         Args:
@@ -107,7 +106,7 @@ class PriceMonitor:
             f"Day P&L: ${float(pos.day_pnl):,.2f}"
         )
 
-    def _format_pnl_message(self, portfolio: "Portfolio", is_gain: bool) -> str:
+    def _format_pnl_message(self, portfolio: Portfolio, is_gain: bool) -> str:
         """Format P&L alert message."""
         # Get top contributors
         sorted_pos = sorted(
@@ -129,7 +128,7 @@ class PriceMonitor:
 
 
 def detect_price_alerts(
-    portfolio: "Portfolio",
+    portfolio: Portfolio,
     top10_threshold: float = 0.05,
     other_threshold: float = 0.10,
 ) -> list[PriceAlert]:

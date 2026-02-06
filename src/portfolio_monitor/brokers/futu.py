@@ -2,10 +2,9 @@
 
 from __future__ import annotations
 
-import io
 import os
 import socket
-from contextlib import contextmanager, redirect_stdout, redirect_stderr
+from contextlib import contextmanager
 from datetime import datetime
 from decimal import Decimal
 from typing import TYPE_CHECKING
@@ -48,7 +47,7 @@ def _check_connectivity(host: str, port: int, timeout: float = 1.0) -> bool:
     try:
         with socket.create_connection((host, port), timeout=timeout):
             return True
-    except (socket.timeout, socket.error):
+    except (TimeoutError, OSError):
         return False
 
 
@@ -63,7 +62,7 @@ class FutuBroker(BaseBroker):
     name = "futu"
     display_name = "Moomoo"
 
-    def __init__(self, config: "BrokerConfig | None" = None):
+    def __init__(self, config: BrokerConfig | None = None):
         super().__init__(config)
         self._trade_ctx = None
         self._quote_ctx = None
@@ -90,10 +89,10 @@ class FutuBroker(BaseBroker):
             ft_logger.logger.console_level = 50
 
             from futu import (
-                OpenSecTradeContext,
                 OpenQuoteContext,
-                TrdMarket,
+                OpenSecTradeContext,
                 SecurityFirm,
+                TrdMarket,
             )
 
             self._trade_ctx = OpenSecTradeContext(
@@ -111,7 +110,7 @@ class FutuBroker(BaseBroker):
             self._connected = True
             return True
         except Exception as e:
-            raise BrokerError("futu", f"Connection failed: {e}")
+            raise BrokerError("futu", f"Connection failed: {e}") from e
 
     def disconnect(self) -> None:
         """Disconnect from Moomoo OpenD."""
@@ -132,7 +131,7 @@ class FutuBroker(BaseBroker):
         if not self.is_connected():
             self.connect()
 
-        from futu import TrdEnv, Currency, TrdMarket, RET_OK
+        from futu import RET_OK, Currency, TrdEnv
 
         positions = self.get_positions()
 
@@ -173,7 +172,7 @@ class FutuBroker(BaseBroker):
         if not self.is_connected():
             self.connect()
 
-        from futu import TrdEnv, TrdMarket, RET_OK
+        from futu import RET_OK, TrdEnv, TrdMarket
 
         positions = []
 
@@ -230,7 +229,7 @@ class FutuBroker(BaseBroker):
 
         except Exception as e:
             if "Failed to fetch positions" not in str(e):
-                raise BrokerError("futu", f"Failed to fetch positions: {e}")
+                raise BrokerError("futu", f"Failed to fetch positions: {e}") from e
             raise
 
         return positions
@@ -299,6 +298,6 @@ class FutuBroker(BaseBroker):
                 )
 
         except Exception as e:
-            raise BrokerError("futu", f"Failed to fetch quotes: {e}")
+            raise BrokerError("futu", f"Failed to fetch quotes: {e}") from e
 
         return result

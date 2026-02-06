@@ -1,5 +1,5 @@
 """Command-line interface for Portfolio Monitor."""
 
-from .main import main, create_parser
+from .main import create_parser, main
 
 __all__ = ["main", "create_parser"]

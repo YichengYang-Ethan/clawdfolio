@@ -2,17 +2,18 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Callable, Type
+from collections.abc import Callable
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from .base import BaseBroker
     from ..core.config import BrokerConfig
+    from .base import BaseBroker
 
 # Global broker registry
-_BROKER_REGISTRY: dict[str, Type["BaseBroker"]] = {}
+_BROKER_REGISTRY: dict[str, type[BaseBroker]] = {}
 
 
-def register_broker(name: str) -> Callable[[Type["BaseBroker"]], Type["BaseBroker"]]:
+def register_broker(name: str) -> Callable[[type[BaseBroker]], type[BaseBroker]]:
     """Decorator to register a broker implementation.
 
     Args:
@@ -27,7 +28,7 @@ def register_broker(name: str) -> Callable[[Type["BaseBroker"]], Type["BaseBroke
         ...     pass
     """
 
-    def decorator(cls: Type["BaseBroker"]) -> Type["BaseBroker"]:
+    def decorator(cls: type[BaseBroker]) -> type[BaseBroker]:
         if name in _BROKER_REGISTRY:
             raise ValueError(f"Broker '{name}' is already registered")
         cls.name = name
@@ -38,8 +39,8 @@ def register_broker(name: str) -> Callable[[Type["BaseBroker"]], Type["BaseBroke
 
 
 def get_broker(
-    name: str, config: "BrokerConfig | None" = None
-) -> "BaseBroker":
+    name: str, config: BrokerConfig | None = None
+) -> BaseBroker:
     """Get a broker instance by name.
 
     Args:
@@ -69,7 +70,7 @@ def list_brokers() -> list[str]:
     return list(_BROKER_REGISTRY.keys())
 
 
-def get_broker_class(name: str) -> Type["BaseBroker"]:
+def get_broker_class(name: str) -> type[BaseBroker]:
     """Get a broker class by name.
 
     Args:

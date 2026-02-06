@@ -7,7 +7,7 @@ from dataclasses import asdict, is_dataclass
 from datetime import datetime
 from decimal import Decimal
 from enum import Enum
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from ..core.types import Alert, Portfolio, RiskMetrics
@@ -35,7 +35,7 @@ class JSONFormatter:
         self.indent = indent
         self.ensure_ascii = ensure_ascii
 
-    def format_portfolio(self, portfolio: "Portfolio") -> str:
+    def format_portfolio(self, portfolio: Portfolio) -> str:
         """Format portfolio as JSON."""
         data = {
             "summary": {
@@ -69,7 +69,7 @@ class JSONFormatter:
         }
         return json.dumps(data, indent=self.indent, ensure_ascii=self.ensure_ascii)
 
-    def format_risk_metrics(self, metrics: "RiskMetrics") -> str:
+    def format_risk_metrics(self, metrics: RiskMetrics) -> str:
         """Format risk metrics as JSON."""
         data = {
             "volatility": {
@@ -106,7 +106,7 @@ class JSONFormatter:
         }
         return json.dumps(data, indent=self.indent, ensure_ascii=self.ensure_ascii)
 
-    def format_alerts(self, alerts: list["Alert"]) -> str:
+    def format_alerts(self, alerts: list[Alert]) -> str:
         """Format alerts as JSON."""
         data = {
             "count": len(alerts),

@@ -2,14 +2,13 @@
 
 from __future__ import annotations
 
+import random
 from datetime import datetime
 from decimal import Decimal
-import random
 
 from ..core.types import Exchange, Portfolio, Position, Quote, Symbol
 from .base import BaseBroker
 from .registry import register_broker
-
 
 # Sample demo data
 DEMO_POSITIONS = [
@@ -123,7 +122,7 @@ class DemoBroker(BaseBroker):
     def get_quote(self, symbol: Symbol) -> Quote:
         """Generate demo quote for a symbol."""
         # Find in demo positions or generate random
-        for ticker, name, _, base_price, _ in self._positions:
+        for ticker, _name, _, base_price, _ in self._positions:
             if ticker == symbol.ticker:
                 price_var = Decimal(str(random.uniform(-0.02, 0.02)))
                 price = Decimal(str(base_price)) * (1 + price_var)

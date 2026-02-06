@@ -1,17 +1,16 @@
 """Tests for broker integrations."""
 
-from decimal import Decimal
 
 import pytest
 
 from portfolio_monitor.brokers.base import BaseBroker
+from portfolio_monitor.brokers.demo import DemoBroker
 from portfolio_monitor.brokers.registry import (
     get_broker,
     list_brokers,
     register_broker,
     unregister_broker,
 )
-from portfolio_monitor.brokers.demo import DemoBroker
 from portfolio_monitor.core.types import Exchange, Symbol
 
 
@@ -90,7 +89,6 @@ class TestDemoBroker:
 
     def test_demo_broker_connect(self):
         """Test demo broker connection."""
-        from portfolio_monitor.brokers.demo import DemoBroker
 
         broker = DemoBroker()
         assert broker.connect() is True
@@ -98,7 +96,6 @@ class TestDemoBroker:
 
     def test_demo_broker_disconnect(self):
         """Test demo broker disconnection."""
-        from portfolio_monitor.brokers.demo import DemoBroker
 
         broker = DemoBroker()
         broker.connect()
@@ -107,7 +104,6 @@ class TestDemoBroker:
 
     def test_demo_broker_get_portfolio(self):
         """Test demo broker portfolio."""
-        from portfolio_monitor.brokers.demo import DemoBroker
 
         broker = DemoBroker()
         broker.connect()
@@ -120,7 +116,6 @@ class TestDemoBroker:
 
     def test_demo_broker_get_positions(self):
         """Test demo broker positions."""
-        from portfolio_monitor.brokers.demo import DemoBroker
 
         broker = DemoBroker()
         broker.connect()
@@ -133,7 +128,6 @@ class TestDemoBroker:
 
     def test_demo_broker_get_quote(self):
         """Test demo broker quote."""
-        from portfolio_monitor.brokers.demo import DemoBroker
 
         broker = DemoBroker()
         broker.connect()
@@ -147,7 +141,6 @@ class TestDemoBroker:
 
     def test_demo_broker_get_quotes(self):
         """Test demo broker multiple quotes."""
-        from portfolio_monitor.brokers.demo import DemoBroker
 
         broker = DemoBroker()
         broker.connect()
@@ -165,7 +158,6 @@ class TestDemoBroker:
 
     def test_demo_broker_context_manager(self):
         """Test demo broker as context manager."""
-        from portfolio_monitor.brokers.demo import DemoBroker
 
         with DemoBroker() as broker:
             assert broker.is_connected()
@@ -174,7 +166,6 @@ class TestDemoBroker:
 
     def test_demo_broker_add_position(self):
         """Test adding custom position to demo broker."""
-        from portfolio_monitor.brokers.demo import DemoBroker
 
         broker = DemoBroker()
         broker.connect()
@@ -186,7 +177,6 @@ class TestDemoBroker:
 
     def test_demo_broker_reset(self):
         """Test resetting demo broker."""
-        from portfolio_monitor.brokers.demo import DemoBroker
 
         broker = DemoBroker()
         broker.connect()

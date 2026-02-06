@@ -4,6 +4,7 @@ from decimal import Decimal
 
 import pytest
 
+from portfolio_monitor.brokers.registry import clear_registry
 from portfolio_monitor.core.types import (
     Exchange,
     Portfolio,
@@ -11,7 +12,6 @@ from portfolio_monitor.core.types import (
     Quote,
     Symbol,
 )
-from portfolio_monitor.brokers.registry import clear_registry
 
 
 @pytest.fixture
@@ -115,7 +115,6 @@ def clean_registry():
 def demo_broker():
     """Provide a demo broker instance."""
     # Import to ensure registration
-    from portfolio_monitor.brokers.demo import DemoBroker
     from portfolio_monitor.brokers import get_broker
 
     broker = get_broker("demo")

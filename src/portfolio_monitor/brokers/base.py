@@ -119,7 +119,7 @@ class BaseBroker(ABC):
         """
         pass
 
-    def __enter__(self) -> "BaseBroker":
+    def __enter__(self) -> BaseBroker:
         """Context manager entry."""
         self.connect()
         return self

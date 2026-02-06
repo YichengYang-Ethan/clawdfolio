@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import io
 import os
-from contextlib import contextmanager, redirect_stdout, redirect_stderr
+from contextlib import contextmanager, redirect_stderr, redirect_stdout
 from datetime import datetime
 from decimal import Decimal
 from typing import TYPE_CHECKING
@@ -58,7 +58,7 @@ class LongportBroker(BaseBroker):
     name = "longport"
     display_name = "Longport"
 
-    def __init__(self, config: "BrokerConfig | None" = None):
+    def __init__(self, config: BrokerConfig | None = None):
         super().__init__(config)
         self._trade_ctx = None
         self._quote_ctx = None
@@ -70,7 +70,7 @@ class LongportBroker(BaseBroker):
             _null = io.StringIO()
             with _suppress_stdio():
                 with redirect_stdout(_null), redirect_stderr(_null):
-                    from longport.openapi import Config, TradeContext, QuoteContext
+                    from longport.openapi import Config, QuoteContext, TradeContext
 
                     self._cfg = Config.from_env()
                     self._trade_ctx = TradeContext(self._cfg)
@@ -79,7 +79,7 @@ class LongportBroker(BaseBroker):
             self._connected = True
             return True
         except Exception as e:
-            raise BrokerError("longport", f"Connection failed: {e}")
+            raise BrokerError("longport", f"Connection failed: {e}") from e
 
     def disconnect(self) -> None:
         """Disconnect from Longport API."""
@@ -143,11 +143,11 @@ class LongportBroker(BaseBroker):
                     if mkt != "US":
                         continue
 
-                    sym = str(getattr(p, "symbol"))
+                    sym = str(p.symbol)
                     if _is_option_symbol(sym):
                         continue
 
-                    qty = Decimal(str(getattr(p, "quantity")))
+                    qty = Decimal(str(p.quantity))
                     if abs(qty) < Decimal("0.000000001"):
                         continue
 
@@ -172,7 +172,7 @@ class LongportBroker(BaseBroker):
                         pos.update_from_quote(quotes[pos.symbol.ticker])
 
         except Exception as e:
-            raise BrokerError("longport", f"Failed to fetch positions: {e}")
+            raise BrokerError("longport", f"Failed to fetch positions: {e}") from e
 
         return positions
 
@@ -215,6 +215,6 @@ class LongportBroker(BaseBroker):
                     source="longport",
                 )
         except Exception as e:
-            raise BrokerError("longport", f"Failed to fetch quotes: {e}")
+            raise BrokerError("longport", f"Failed to fetch quotes: {e}") from e
 
         return result

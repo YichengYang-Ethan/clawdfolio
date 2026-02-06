@@ -50,7 +50,7 @@ def calculate_hhi(weights: list[float]) -> float:
     return sum(w ** 2 for w in weights)
 
 
-def calculate_concentration(portfolio: "Portfolio") -> ConcentrationMetrics:
+def calculate_concentration(portfolio: Portfolio) -> ConcentrationMetrics:
     """Calculate portfolio concentration metrics.
 
     Args:
@@ -98,7 +98,7 @@ def calculate_concentration(portfolio: "Portfolio") -> ConcentrationMetrics:
     )
 
 
-def get_sector_exposure(portfolio: "Portfolio") -> list[SectorExposure]:
+def get_sector_exposure(portfolio: Portfolio) -> list[SectorExposure]:
     """Calculate sector exposure breakdown.
 
     Args:
@@ -129,7 +129,7 @@ def get_sector_exposure(portfolio: "Portfolio") -> list[SectorExposure]:
 
 
 def analyze_concentration(
-    portfolio: "Portfolio",
+    portfolio: Portfolio,
     concentration_threshold: float = 0.25,
     sector_threshold: float = 0.40,
 ) -> dict:
@@ -194,7 +194,7 @@ def analyze_concentration(
     }
 
 
-def diversification_score(portfolio: "Portfolio") -> float:
+def diversification_score(portfolio: Portfolio) -> float:
     """Calculate a diversification score (0-100).
 
     Higher score = better diversified.

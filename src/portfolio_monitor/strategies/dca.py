@@ -3,8 +3,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import date, datetime
-from decimal import Decimal
 from enum import Enum
 from typing import TYPE_CHECKING
 
@@ -45,7 +43,7 @@ class DCAStrategy:
     dip_amount_multiplier: float = 1.5  # Extra amount on dips
     rebalance_threshold: float = 0.05  # 5% deviation triggers rebalance
 
-    def check_signals(self, portfolio: "Portfolio") -> list[DCASignal]:
+    def check_signals(self, portfolio: Portfolio) -> list[DCASignal]:
         """Check for DCA signals based on current portfolio.
 
         Args:
@@ -122,7 +120,7 @@ class DCAStrategy:
 
 
 def check_dca_signals(
-    portfolio: "Portfolio",
+    portfolio: Portfolio,
     targets: dict[str, float],
     dip_threshold: float = 0.10,
 ) -> list[DCASignal]:

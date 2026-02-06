@@ -6,8 +6,8 @@ from typing import TYPE_CHECKING
 
 try:
     from rich.console import Console
-    from rich.table import Table
     from rich.panel import Panel
+    from rich.table import Table
     from rich.text import Text
     RICH_AVAILABLE = True
 except ImportError:
@@ -41,12 +41,12 @@ def _get_color(value: float) -> str:
 class ConsoleFormatter:
     """Rich console formatter for portfolio data."""
 
-    def __init__(self, console: "Console | None" = None):
+    def __init__(self, console: Console | None = None):
         if not RICH_AVAILABLE:
             raise ImportError("Rich library required. Install with: pip install rich")
         self.console = console or Console()
 
-    def print_portfolio(self, portfolio: "Portfolio") -> None:
+    def print_portfolio(self, portfolio: Portfolio) -> None:
         """Print portfolio summary."""
         # Summary panel
         summary_text = Text()
@@ -56,7 +56,7 @@ class ConsoleFormatter:
 
         day_pnl = float(portfolio.day_pnl)
         color = _get_color(day_pnl)
-        summary_text.append(f"Day P&L: ", style="")
+        summary_text.append("Day P&L: ", style="")
         summary_text.append(f"{_format_money(day_pnl)} ({_format_pct(portfolio.day_pnl_pct)})", style=color)
 
         self.console.print(Panel(summary_text, title="Portfolio Summary", border_style="blue"))
@@ -87,7 +87,7 @@ class ConsoleFormatter:
 
         self.console.print(table)
 
-    def print_risk_metrics(self, metrics: "RiskMetrics") -> None:
+    def print_risk_metrics(self, metrics: RiskMetrics) -> None:
         """Print risk metrics."""
         table = Table(title="Risk Metrics")
         table.add_column("Metric", style="cyan")
@@ -129,7 +129,7 @@ class ConsoleFormatter:
 
             self.console.print(corr_table)
 
-    def print_alerts(self, alerts: list["Alert"]) -> None:
+    def print_alerts(self, alerts: list[Alert]) -> None:
         """Print alerts."""
         if not alerts:
             self.console.print("[green]No alerts[/green]")
@@ -150,7 +150,7 @@ class ConsoleFormatter:
 
 
 # Convenience functions for simple usage
-def print_portfolio(portfolio: "Portfolio") -> None:
+def print_portfolio(portfolio: Portfolio) -> None:
     """Print portfolio summary to console."""
     if RICH_AVAILABLE:
         formatter = ConsoleFormatter()
@@ -159,7 +159,7 @@ def print_portfolio(portfolio: "Portfolio") -> None:
         _print_portfolio_plain(portfolio)
 
 
-def print_risk_metrics(metrics: "RiskMetrics") -> None:
+def print_risk_metrics(metrics: RiskMetrics) -> None:
     """Print risk metrics to console."""
     if RICH_AVAILABLE:
         formatter = ConsoleFormatter()
@@ -168,20 +168,20 @@ def print_risk_metrics(metrics: "RiskMetrics") -> None:
         _print_risk_plain(metrics)
 
 
-def _print_portfolio_plain(portfolio: "Portfolio") -> None:
+def _print_portfolio_plain(portfolio: Portfolio) -> None:
     """Plain text fallback for portfolio."""
-    print(f"\n=== Portfolio Summary ===")
+    print("\n=== Portfolio Summary ===")
     print(f"Net Assets: ${float(portfolio.net_assets):,.2f}")
     print(f"Cash: ${float(portfolio.cash):,.2f}")
     print(f"Day P&L: {_format_money(float(portfolio.day_pnl))}")
-    print(f"\nTop Holdings:")
+    print("\nTop Holdings:")
     for pos in portfolio.sorted_by_weight[:10]:
         print(f"  {pos.symbol.ticker}: {pos.weight*100:.1f}% | ${float(pos.market_value):,.0f}")
 
 
-def _print_risk_plain(metrics: "RiskMetrics") -> None:
+def _print_risk_plain(metrics: RiskMetrics) -> None:
     """Plain text fallback for risk metrics."""
-    print(f"\n=== Risk Metrics ===")
+    print("\n=== Risk Metrics ===")
     if metrics.volatility_annualized:
         print(f"Volatility: {metrics.volatility_annualized*100:.1f}%")
     if metrics.beta_spy:

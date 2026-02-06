@@ -30,7 +30,7 @@ class EarningsMonitor:
     # Alert window (days before earnings)
     alert_days: int = 7
 
-    def check_portfolio(self, portfolio: "Portfolio") -> list[Alert]:
+    def check_portfolio(self, portfolio: Portfolio) -> list[Alert]:
         """Check portfolio for upcoming earnings.
 
         Args:
@@ -81,7 +81,7 @@ class EarningsMonitor:
 
 
 def get_upcoming_earnings(
-    portfolio: "Portfolio",
+    portfolio: Portfolio,
     days_ahead: int = 14,
 ) -> list[EarningsEvent]:
     """Get upcoming earnings for portfolio holdings.

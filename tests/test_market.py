@@ -1,21 +1,18 @@
 """Tests for market utilities."""
 
-from datetime import date, time, timedelta
+from datetime import date, time
 
-import pytest
-
-from portfolio_monitor.market.hours import (
-    MarketHours,
-    MarketStatus,
-    is_market_open,
-    get_market_status,
-)
 from portfolio_monitor.market.calendar import (
     is_trading_day,
     is_weekend,
     next_trading_day,
     prev_trading_day,
     trading_days_between,
+)
+from portfolio_monitor.market.hours import (
+    MarketHours,
+    MarketStatus,
+    get_market_status,
 )
 
 

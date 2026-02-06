@@ -112,7 +112,7 @@ def create_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def cmd_summary(args: "Namespace") -> int:
+def cmd_summary(args: Namespace) -> int:
     """Handle summary command."""
     from ..brokers import get_broker
     from ..brokers.demo import DemoBroker  # noqa: F401 - registers broker
@@ -138,9 +138,8 @@ def cmd_summary(args: "Namespace") -> int:
         return 1
 
 
-def cmd_quotes(args: "Namespace") -> int:
+def cmd_quotes(args: Namespace) -> int:
     """Handle quotes command."""
-    from ..core.types import Symbol
     from ..market.data import get_quotes_yfinance
     from ..output.json import to_json
 
@@ -167,11 +166,11 @@ def cmd_quotes(args: "Namespace") -> int:
     return 0
 
 
-def cmd_risk(args: "Namespace") -> int:
+def cmd_risk(args: Namespace) -> int:
     """Handle risk command."""
+    from ..analysis.risk import analyze_risk
     from ..brokers import get_broker
     from ..brokers.demo import DemoBroker  # noqa: F401
-    from ..analysis.risk import analyze_risk
     from ..output import print_risk_metrics
 
     broker_name = args.broker if args.broker != "all" else "demo"
@@ -195,12 +194,12 @@ def cmd_risk(args: "Namespace") -> int:
         return 1
 
 
-def cmd_alerts(args: "Namespace") -> int:
+def cmd_alerts(args: Namespace) -> int:
     """Handle alerts command."""
     from ..brokers import get_broker
     from ..brokers.demo import DemoBroker  # noqa: F401
-    from ..monitors.price import PriceMonitor
     from ..monitors.earnings import EarningsMonitor
+    from ..monitors.price import PriceMonitor
 
     broker_name = args.broker if args.broker != "all" else "demo"
 
@@ -236,11 +235,11 @@ def cmd_alerts(args: "Namespace") -> int:
         return 1
 
 
-def cmd_earnings(args: "Namespace") -> int:
+def cmd_earnings(args: Namespace) -> int:
     """Handle earnings command."""
     from ..brokers import get_broker
     from ..brokers.demo import DemoBroker  # noqa: F401
-    from ..monitors.earnings import get_upcoming_earnings, format_earnings_calendar
+    from ..monitors.earnings import format_earnings_calendar, get_upcoming_earnings
 
     broker_name = args.broker if args.broker != "all" else "demo"
 
@@ -272,10 +271,10 @@ def cmd_earnings(args: "Namespace") -> int:
         return 1
 
 
-def cmd_dca(args: "Namespace") -> int:
+def cmd_dca(args: Namespace) -> int:
     """Handle DCA command."""
-    from ..strategies.dca import calculate_dca_performance
     from ..output.json import to_json
+    from ..strategies.dca import calculate_dca_performance
 
     if not args.symbol:
         print("Usage: portfolio-monitor dca SYMBOL [--months N] [--amount N]")

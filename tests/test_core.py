@@ -2,23 +2,18 @@
 
 from decimal import Decimal
 
-import pytest
-
+from portfolio_monitor.core.config import Config, load_config
+from portfolio_monitor.core.exceptions import (
+    BrokerError,
+    PortfolioMonitorError,
+)
 from portfolio_monitor.core.types import (
     Alert,
     AlertSeverity,
     AlertType,
     Exchange,
-    Portfolio,
-    Position,
     Quote,
     Symbol,
-)
-from portfolio_monitor.core.config import Config, load_config, AlertConfig
-from portfolio_monitor.core.exceptions import (
-    BrokerError,
-    ConfigError,
-    PortfolioMonitorError,
 )
 
 

@@ -230,7 +230,7 @@ def find_high_correlations(
     return sorted(pairs, key=lambda x: abs(x[2]), reverse=True)
 
 
-def analyze_risk(portfolio: "Portfolio") -> RiskMetrics:
+def analyze_risk(portfolio: Portfolio) -> RiskMetrics:
     """Comprehensive risk analysis for a portfolio.
 
     Args:
@@ -263,7 +263,7 @@ def analyze_risk(portfolio: "Portfolio") -> RiskMetrics:
     if not available_tickers:
         return metrics
 
-    ticker_weights = {t: w for t, w in zip(tickers, weights) if t in available_tickers}
+    ticker_weights = {t: w for t, w in zip(tickers, weights, strict=False) if t in available_tickers}
     w = np.array([ticker_weights[t] for t in available_tickers])
     w = w / w.sum()  # Renormalize
 

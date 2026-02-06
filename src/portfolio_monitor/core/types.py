@@ -21,7 +21,7 @@ class Exchange(str, Enum):
     UNKNOWN = "UNKNOWN"
 
     @classmethod
-    def from_suffix(cls, suffix: str) -> "Exchange":
+    def from_suffix(cls, suffix: str) -> Exchange:
         """Parse exchange from ticker suffix (e.g., '.US', '.HK')."""
         mapping = {
             "US": cls.NYSE,  # Default US to NYSE

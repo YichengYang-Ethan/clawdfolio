@@ -61,7 +61,7 @@ class Config:
     verbose: bool = False
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "Config":
+    def from_dict(cls, data: dict[str, Any]) -> Config:
         """Create Config from dictionary."""
         brokers = {}
         for name, cfg in data.get("brokers", {}).items():
@@ -198,7 +198,7 @@ def _load_from_file(path: Path) -> Config:
 
         return Config.from_dict(data)
     except Exception as e:
-        raise ConfigError(f"Failed to load config from {path}: {e}")
+        raise ConfigError(f"Failed to load config from {path}: {e}") from e
 
 
 def _default_config() -> Config:
