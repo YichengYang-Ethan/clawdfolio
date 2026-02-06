@@ -7,7 +7,7 @@ import os
 from contextlib import contextmanager, redirect_stderr, redirect_stdout
 from datetime import datetime
 from decimal import Decimal
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from ..core.exceptions import BrokerError
 from ..core.types import Exchange, Portfolio, Position, Quote, Symbol
@@ -60,9 +60,9 @@ class LongportBroker(BaseBroker):
 
     def __init__(self, config: BrokerConfig | None = None):
         super().__init__(config)
-        self._trade_ctx = None
-        self._quote_ctx = None
-        self._cfg = None
+        self._trade_ctx: Any = None
+        self._quote_ctx: Any = None
+        self._cfg: Any = None
 
     def connect(self) -> bool:
         """Connect to Longport API."""
@@ -108,8 +108,8 @@ class LongportBroker(BaseBroker):
         cash = Decimal(str(acc.total_cash))
         buying_power = Decimal(str(getattr(acc, "buy_power", 0) or 0))
 
-        total_mv = sum(p.market_value for p in positions)
-        total_day_pnl = sum(p.day_pnl for p in positions)
+        total_mv = sum((p.market_value for p in positions), Decimal(0))
+        total_day_pnl = sum((p.day_pnl for p in positions), Decimal(0))
 
         portfolio = Portfolio(
             positions=positions,
@@ -118,7 +118,7 @@ class LongportBroker(BaseBroker):
             market_value=total_mv,
             buying_power=buying_power,
             day_pnl=total_day_pnl,
-            day_pnl_pct=float(total_day_pnl / net_assets) if net_assets > 0 else 0,
+            day_pnl_pct=float(total_day_pnl / net_assets) if net_assets > 0 else 0.0,
             currency="USD",
             source="longport",
             timestamp=datetime.now(),

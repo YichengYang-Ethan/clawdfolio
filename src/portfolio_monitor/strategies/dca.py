@@ -67,7 +67,7 @@ class DCAStrategy:
                 signals.append(DCASignal(
                     ticker=ticker,
                     signal_type=SignalType.REBALANCE,
-                    current_price=float(pos.current_price) if pos else 0,
+                    current_price=float(pos.current_price) if pos and pos.current_price else 0.0,
                     suggested_amount=amount,
                     reason=f"Below target by {deviation*100:.1f}%",
                     strength=min(deviation / self.rebalance_threshold, 1.0),

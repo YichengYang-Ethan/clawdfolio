@@ -7,7 +7,7 @@ import socket
 from contextlib import contextmanager
 from datetime import datetime
 from decimal import Decimal
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from ..core.exceptions import BrokerError
 from ..core.types import Exchange, Portfolio, Position, Quote, Symbol
@@ -64,8 +64,8 @@ class FutuBroker(BaseBroker):
 
     def __init__(self, config: BrokerConfig | None = None):
         super().__init__(config)
-        self._trade_ctx = None
-        self._quote_ctx = None
+        self._trade_ctx: Any = None
+        self._quote_ctx: Any = None
 
         # Get host/port from config or defaults
         self._host = DEFAULT_HOST
@@ -150,7 +150,7 @@ class FutuBroker(BaseBroker):
         market_value = Decimal(str(row.get("market_val", 0)))
         buying_power = Decimal(str(row.get("power", 0) or 0))
 
-        total_day_pnl = sum(p.day_pnl for p in positions)
+        total_day_pnl = sum((p.day_pnl for p in positions), Decimal(0))
 
         portfolio = Portfolio(
             positions=positions,
@@ -159,7 +159,7 @@ class FutuBroker(BaseBroker):
             market_value=market_value,
             buying_power=buying_power,
             day_pnl=total_day_pnl,
-            day_pnl_pct=float(total_day_pnl / net_assets) if net_assets > 0 else 0,
+            day_pnl_pct=float(total_day_pnl / net_assets) if net_assets > 0 else 0.0,
             currency="USD",
             source="futu",
             timestamp=datetime.now(),

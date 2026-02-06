@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime, time, timedelta
 from enum import Enum
-from typing import NamedTuple
+from typing import ClassVar, NamedTuple
 from zoneinfo import ZoneInfo
 
 
@@ -35,14 +35,10 @@ class MarketHours:
     timezone: ZoneInfo
     session: MarketSession
 
-    # US market hours (Eastern Time)
-    US = None  # Defined after class
-
-    # Hong Kong market hours
-    HK = None
-
-    # China A-shares (Shanghai/Shenzhen)
-    CN = None
+    # Class-level market constants (defined after class)
+    US: ClassVar[MarketHours]
+    HK: ClassVar[MarketHours]
+    CN: ClassVar[MarketHours]
 
     def now(self) -> datetime:
         """Get current time in market timezone."""
@@ -173,9 +169,9 @@ def time_to_close(market: str = "US") -> timedelta | None:
 
 def _get_market_hours(market: str) -> MarketHours:
     """Get MarketHours for a market code."""
-    markets = {
+    markets: dict[str, MarketHours] = {
         "US": MarketHours.US,
         "HK": MarketHours.HK,
         "CN": MarketHours.CN,
     }
-    return markets.get(market.upper(), MarketHours.US)
+    return markets.get(market.upper()) or MarketHours.US

@@ -5,10 +5,14 @@ from __future__ import annotations
 import random
 from datetime import datetime
 from decimal import Decimal
+from typing import TYPE_CHECKING
 
 from ..core.types import Exchange, Portfolio, Position, Quote, Symbol
 from .base import BaseBroker
 from .registry import register_broker
+
+if TYPE_CHECKING:
+    from ..core.config import BrokerConfig
 
 # Sample demo data
 DEMO_POSITIONS = [
@@ -38,7 +42,7 @@ class DemoBroker(BaseBroker):
     name = "demo"
     display_name = "Demo Broker"
 
-    def __init__(self, config=None):
+    def __init__(self, config: BrokerConfig | None = None):
         super().__init__(config)
         self._connected = False
         self._positions: list[tuple] = DEMO_POSITIONS.copy()
@@ -60,8 +64,8 @@ class DemoBroker(BaseBroker):
         """Generate demo portfolio."""
         positions = self.get_positions()
 
-        total_mv = sum(p.market_value for p in positions)
-        total_day_pnl = sum(p.day_pnl for p in positions)
+        total_mv = sum((p.market_value for p in positions), Decimal(0))
+        total_day_pnl = sum((p.day_pnl for p in positions), Decimal(0))
         cash = Decimal("15000.00")
         net_assets = total_mv + cash
 
@@ -72,7 +76,7 @@ class DemoBroker(BaseBroker):
             market_value=total_mv,
             buying_power=cash * Decimal("2"),  # Simulate margin
             day_pnl=total_day_pnl,
-            day_pnl_pct=float(total_day_pnl / net_assets) if net_assets > 0 else 0,
+            day_pnl_pct=float(total_day_pnl / net_assets) if net_assets > 0 else 0.0,
             currency="USD",
             source="demo",
             timestamp=datetime.now(),
