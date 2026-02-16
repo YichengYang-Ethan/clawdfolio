@@ -246,6 +246,19 @@ MIT License - see [LICENSE](LICENSE)
 
 ---
 
+## Ecosystem
+
+Clawdfolio is the core engine of a broader quantitative finance toolkit:
+
+| Project | Layer | Description |
+|---------|-------|-------------|
+| **clawdfolio** (this repo) | Core Engine | Risk analytics, broker integration, signal generation, options strategy |
+| [investment-dashboard](https://github.com/YichengYang-Ethan/investment-dashboard) | Visualization | React/TypeScript portfolio frontend consuming clawdfolio data |
+| [QQQ-200D-Deviation-Dashboard](https://github.com/YichengYang-Ethan/QQQ-200D-Deviation-Dashboard) | Visualization | Market timing tool using SMA deviation methodology |
+| [crypto-return-prediction](https://github.com/YichengYang-Ethan/crypto-return-prediction-kaggle) | ML Research | LightGBM crypto prediction with shared indicator framework |
+
+---
+
 ## Links
 
 - [GitHub Repository](https://github.com/YichengYang-Ethan/clawdfolio)
