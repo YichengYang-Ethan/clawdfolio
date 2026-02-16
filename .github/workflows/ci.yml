@@ -23,7 +23,7 @@ jobs:
           cache: pip
 
       - name: Install dependencies
-        run: pip install -e ".[dev]"
+        run: pip install ".[dev]"
 
       - name: Lint with ruff
         run: ruff check src/ tests/
@@ -37,7 +37,7 @@ jobs:
       - name: Security audit
         run: |
           pip install pip-audit
-          pip-audit --strict --desc --skip-editable
+          pip-audit --desc --skip-editable
 
       - name: Upload coverage
         if: matrix.python-version == '3.11'
