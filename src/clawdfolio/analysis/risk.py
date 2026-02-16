@@ -11,7 +11,7 @@ import pandas as pd
 
 from ..analysis.technical import calculate_rsi
 from ..core.types import RiskMetrics
-from ..market.data import get_history, get_history_multi, risk_free_rate
+from ..market.data import get_history_multi, risk_free_rate
 
 if TYPE_CHECKING:
     from ..core.types import Portfolio
@@ -122,6 +122,52 @@ def calculate_sharpe_ratio(
     sharpe = (mean_excess / std_excess) * np.sqrt(TRADING_DAYS_YEAR)
 
     return float(sharpe)
+
+
+def calculate_sortino_ratio(
+    returns: pd.Series | np.ndarray,
+    rf_rate: float | None = None,
+) -> float | None:
+    """Calculate Sortino ratio (penalizes only downside volatility)."""
+    if len(returns) < 20:
+        return None
+    if rf_rate is None:
+        rf_rate = risk_free_rate()
+    returns_arr = np.array(returns)
+    returns_arr = returns_arr[~np.isnan(returns_arr)]
+    if len(returns_arr) < 20:
+        return None
+    rf_daily = rf_rate / TRADING_DAYS_YEAR
+    excess_returns = returns_arr - rf_daily
+    downside_returns = excess_returns[excess_returns < 0]
+    if len(downside_returns) == 0:
+        return None
+    downside_std = np.std(downside_returns, ddof=1)
+    if downside_std == 0:
+        return None
+    sortino = (np.mean(excess_returns) / downside_std) * np.sqrt(TRADING_DAYS_YEAR)
+    return float(sortino)
+
+
+def calculate_cvar(
+    returns: pd.Series | np.ndarray,
+    confidence: float = 0.95,
+    portfolio_value: float | None = None,
+) -> tuple[float, float | None]:
+    """Calculate Conditional VaR (Expected Shortfall)."""
+    returns_arr = np.array(returns)
+    returns_arr = returns_arr[~np.isnan(returns_arr)]
+    if len(returns_arr) < 20:
+        return 0.0, None
+    var_threshold = np.percentile(returns_arr, (1 - confidence) * 100)
+    tail_returns = returns_arr[returns_arr <= var_threshold]
+    if len(tail_returns) == 0:
+        return 0.0, None
+    cvar_pct = float(abs(np.mean(tail_returns)))
+    cvar_amount = None
+    if portfolio_value:
+        cvar_amount = cvar_pct * portfolio_value
+    return cvar_pct, cvar_amount
 
 
 def calculate_var(
@@ -278,21 +324,21 @@ def analyze_risk(portfolio: Portfolio) -> RiskMetrics:
     metrics.volatility_annualized = metrics.volatility_20d
 
     # Beta
-    spy_hist = get_history("SPY", period="1y")
-    qqq_hist = get_history("QQQ", period="1y")
+    bench_prices = get_history_multi(["SPY", "QQQ"], period="1y")
 
-    if not spy_hist.empty:
-        spy_returns = spy_hist["Close"].pct_change().dropna()
+    if not bench_prices.empty and "SPY" in bench_prices.columns:
+        spy_returns = bench_prices["SPY"].pct_change().dropna()
         metrics.beta_spy = calculate_beta(port_returns, spy_returns)
 
-    if not qqq_hist.empty:
-        qqq_returns = qqq_hist["Close"].pct_change().dropna()
+    if not bench_prices.empty and "QQQ" in bench_prices.columns:
+        qqq_returns = bench_prices["QQQ"].pct_change().dropna()
         metrics.beta_qqq = calculate_beta(port_returns, qqq_returns)
 
     # Sharpe Ratio
     rf = risk_free_rate()
     metrics.risk_free_rate = rf
     metrics.sharpe_ratio = calculate_sharpe_ratio(port_returns, rf)
+    metrics.sortino_ratio = calculate_sortino_ratio(port_returns, rf)
 
     # VaR
     net_assets = float(portfolio.net_assets)
@@ -302,6 +348,10 @@ def analyze_risk(portfolio: Portfolio) -> RiskMetrics:
         metrics.var_95_amount = Decimal(str(round(var_95_amt, 2)))
     if var_99_amt:
         metrics.var_99_amount = Decimal(str(round(var_99_amt, 2)))
+
+    # CVaR (Expected Shortfall)
+    metrics.cvar_95, _ = calculate_cvar(port_returns, 0.95, net_assets)
+    metrics.cvar_99, _ = calculate_cvar(port_returns, 0.99, net_assets)
 
     # Max Drawdown (using portfolio value proxy)
     port_value = (1 + port_returns).cumprod()
@@ -314,5 +364,8 @@ def analyze_risk(portfolio: Portfolio) -> RiskMetrics:
     if len(available_tickers) >= 2:
         corr_matrix = returns[available_tickers].corr()
         metrics.high_corr_pairs = find_high_correlations(corr_matrix, threshold=0.8)
+
+    # Portfolio RSI
+    metrics.rsi_portfolio = calculate_rsi(port_value)
 
     return metrics

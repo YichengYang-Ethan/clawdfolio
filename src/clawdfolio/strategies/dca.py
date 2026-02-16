@@ -8,6 +8,25 @@ from typing import TYPE_CHECKING
 
 from ..market.data import get_history, get_price
 
+
+def _months_to_period(months: int) -> str:
+    """Convert months to a valid yfinance period string."""
+    if months <= 1:
+        return "1mo"
+    elif months <= 3:
+        return "3mo"
+    elif months <= 6:
+        return "6mo"
+    elif months <= 12:
+        return "1y"
+    elif months <= 24:
+        return "2y"
+    elif months <= 60:
+        return "5y"
+    else:
+        return "10y"
+
+
 if TYPE_CHECKING:
     from ..core.types import Portfolio
 
@@ -156,7 +175,7 @@ def calculate_dca_performance(
     Returns:
         Performance metrics
     """
-    hist = get_history(ticker, period=f"{months}mo")
+    hist = get_history(ticker, period=_months_to_period(months))
     if hist.empty:
         return {}
 

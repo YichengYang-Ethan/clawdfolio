@@ -115,30 +115,11 @@ def calculate_ema(
     prices: pd.Series | np.ndarray,
     period: int = 20,
 ) -> float | None:
-    """Calculate Exponential Moving Average.
-
-    Args:
-        prices: Price series
-        period: EMA period
-
-    Returns:
-        EMA value or None if insufficient data
-    """
+    """Calculate Exponential Moving Average."""
     prices_arr = np.array(prices)
     if len(prices_arr) < period:
         return None
-
-    # Calculate multiplier
-    multiplier = 2 / (period + 1)
-
-    # Start with SMA
-    ema = np.mean(prices_arr[:period])
-
-    # Calculate EMA
-    for price in prices_arr[period:]:
-        ema = (price - ema) * multiplier + ema
-
-    return float(ema)
+    return float(pd.Series(prices_arr).ewm(span=period, adjust=False).mean().iloc[-1])
 
 
 def calculate_bollinger_bands(

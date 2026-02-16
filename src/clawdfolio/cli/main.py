@@ -96,6 +96,24 @@ def create_parser() -> argparse.ArgumentParser:
         help="Days to look ahead (default: 14)",
     )
 
+    # Export command
+    export_parser = subparsers.add_parser("export", help="Export portfolio data to CSV or JSON files")
+    export_parser.add_argument(
+        "what",
+        choices=["portfolio", "risk", "alerts"],
+        help="What to export",
+    )
+    export_parser.add_argument(
+        "--format", "-f",
+        choices=["csv", "json"],
+        default="csv",
+        help="Export format (default: csv)",
+    )
+    export_parser.add_argument(
+        "--file",
+        help="Output file path (default: stdout)",
+    )
+
     # DCA command
     dca_parser = subparsers.add_parser("dca", help="DCA signals and analysis")
     dca_parser.add_argument(
@@ -469,6 +487,56 @@ def cmd_earnings(args: Namespace) -> int:
         return 1
 
 
+def cmd_export(args: Namespace) -> int:
+    """Handle export command."""
+    from ..brokers import get_broker
+    from ..brokers.demo import DemoBroker  # noqa: F401
+    from ..output.export import (
+        export_alerts_csv,
+        export_alerts_json,
+        export_portfolio_csv,
+        export_portfolio_json,
+        export_risk_csv,
+        export_risk_json,
+    )
+
+    broker_name = args.broker if args.broker != "all" else "demo"
+
+    try:
+        broker = get_broker(broker_name)
+        broker.connect()
+        portfolio = broker.get_portfolio()
+
+        if args.what == "portfolio":
+            content = export_portfolio_csv(portfolio) if args.format == "csv" else export_portfolio_json(portfolio)
+        elif args.what == "risk":
+            from ..analysis.risk import analyze_risk
+            metrics = analyze_risk(portfolio)
+            content = export_risk_csv(metrics) if args.format == "csv" else export_risk_json(metrics)
+        elif args.what == "alerts":
+            from ..monitors.earnings import EarningsMonitor
+            from ..monitors.price import PriceMonitor
+            all_alerts = []
+            all_alerts.extend(PriceMonitor().check_portfolio(portfolio))
+            all_alerts.extend(EarningsMonitor().check_portfolio(portfolio))
+            content = export_alerts_csv(all_alerts) if args.format == "csv" else export_alerts_json(all_alerts)
+        else:
+            print(f"Unknown export target: {args.what}", file=sys.stderr)
+            return 1
+
+        if args.file:
+            with open(args.file, "w") as f:
+                f.write(content)
+            print(f"Exported to {args.file}")
+        else:
+            print(content, end="")
+
+        return 0
+    except Exception as e:
+        print(f"Error: {e}", file=sys.stderr)
+        return 1
+
+
 def cmd_dca(args: Namespace) -> int:
     """Handle DCA command."""
     from ..output.json import to_json
@@ -768,6 +836,7 @@ def main(argv: list[str] | None = None) -> int:
         "risk": cmd_risk,
         "alerts": cmd_alerts,
         "earnings": cmd_earnings,
+        "export": cmd_export,
         "dca": cmd_dca,
         "options": cmd_options,
         "finance": cmd_finance,

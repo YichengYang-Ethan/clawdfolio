@@ -35,6 +35,7 @@ def _import_yf():
 # ---------------------------------------------------------------------------
 _cache: dict[str, tuple[float, Any]] = {}
 _cache_lock = threading.Lock()
+_key_locks: dict[str, threading.Lock] = {}
 
 # Global TTL override — set via set_default_ttl() from config.cache_ttl
 _default_ttl: float | None = None
@@ -60,10 +61,23 @@ def _cached(key: str, ttl: float, fn):
             ts, val = _cache[key]
             if now - ts < effective_ttl:
                 return val
-    val = fn()
-    with _cache_lock:
-        _cache[key] = (now, val)
-    return val
+        # Get or create per-key lock
+        if key not in _key_locks:
+            _key_locks[key] = threading.Lock()
+        key_lock = _key_locks[key]
+
+    with key_lock:
+        # Double-check after acquiring key lock
+        now = time.time()
+        with _cache_lock:
+            if key in _cache:
+                ts, val = _cache[key]
+                if now - ts < ttl:
+                    return val
+        val = fn()
+        with _cache_lock:
+            _cache[key] = (now, val)
+        return val
 
 
 def clear_cache() -> None:

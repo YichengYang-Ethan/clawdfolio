@@ -135,11 +135,12 @@ class Position:
     prev_close: Decimal | None = None
     name: str = ""
     source: str = ""
+    _weight: float = field(default=0.0, init=False, repr=False)
 
     @property
     def weight(self) -> float:
         """Position weight - must be set externally based on portfolio."""
-        return getattr(self, "_weight", 0.0)
+        return self._weight
 
     @weight.setter
     def weight(self, value: float):
@@ -167,6 +168,7 @@ class Portfolio:
     """Aggregated portfolio data."""
 
     positions: list[Position] = field(default_factory=list)
+    _ticker_index: dict[str, Position] = field(default_factory=dict, init=False, repr=False)
     cash: Decimal = Decimal("0")
     net_assets: Decimal = Decimal("0")
     market_value: Decimal = Decimal("0")
@@ -179,6 +181,7 @@ class Portfolio:
 
     def __post_init__(self):
         self._update_weights()
+        self._ticker_index = {p.symbol.ticker: p for p in self.positions}
 
     def _update_weights(self) -> None:
         """Update position weights based on net assets."""
@@ -189,6 +192,7 @@ class Portfolio:
     def add_position(self, position: Position) -> None:
         """Add a position and update weights."""
         self.positions.append(position)
+        self._ticker_index[position.symbol.ticker] = position
         self._update_weights()
 
     @property
@@ -203,10 +207,7 @@ class Portfolio:
 
     def get_position(self, ticker: str) -> Position | None:
         """Get position by ticker."""
-        for pos in self.positions:
-            if pos.symbol.ticker == ticker:
-                return pos
-        return None
+        return self._ticker_index.get(ticker)
 
 
 @dataclass
@@ -224,6 +225,7 @@ class RiskMetrics:
 
     # Sharpe Ratio
     sharpe_ratio: float | None = None
+    sortino_ratio: float | None = None
     risk_free_rate: float = 0.045
 
     # Value at Risk
@@ -231,6 +233,8 @@ class RiskMetrics:
     var_99: float | None = None  # 99% VaR as percentage
     var_95_amount: Decimal | None = None  # 95% VaR in currency
     var_99_amount: Decimal | None = None  # 99% VaR in currency
+    cvar_95: float | None = None
+    cvar_99: float | None = None
 
     # Concentration
     hhi: float | None = None  # Herfindahl-Hirschman Index
