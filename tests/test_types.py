@@ -53,12 +53,12 @@ class TestExchange:
 
 class TestQuote:
     def test_change(self, sample_quote):
-        assert sample_quote.change == Decimal("2.30")
+        assert sample_quote.change == Decimal("2.50")
 
     def test_change_pct(self, sample_quote):
         pct = sample_quote.change_pct
         assert pct is not None
-        assert abs(pct - 0.01255) < 0.001
+        assert abs(pct - 0.01445) < 0.001
 
     def test_change_no_prev_close(self, sample_symbol):
         q = Quote(symbol=sample_symbol, price=Decimal("100"))
@@ -69,12 +69,12 @@ class TestQuote:
 class TestPosition:
     def test_update_from_quote(self, sample_position, sample_quote):
         sample_position.update_from_quote(sample_quote)
-        assert sample_position.current_price == Decimal("185.50")
-        assert sample_position.market_value == Decimal("18550.00")
+        assert sample_position.current_price == Decimal("175.50")
+        assert sample_position.market_value == Decimal("17550.00")
 
     def test_unrealized_pnl(self, sample_position, sample_quote):
         sample_position.update_from_quote(sample_quote)
-        expected_pnl = Decimal("100") * (Decimal("185.50") - Decimal("150.00"))
+        expected_pnl = Decimal("100") * (Decimal("175.50") - Decimal("150.00"))
         assert sample_position.unrealized_pnl == expected_pnl
 
 

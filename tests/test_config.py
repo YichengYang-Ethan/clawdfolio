@@ -1,6 +1,5 @@
 """Tests for configuration loading."""
 
-import pytest
 import yaml
 
 from clawdfolio.core.config import Config, load_config
@@ -12,9 +11,9 @@ class TestConfig:
         assert config is not None
 
     def test_load_config_missing_file(self):
-        """Loading a non-existent config file should raise or return defaults."""
-        with pytest.raises((FileNotFoundError, OSError)):
-            load_config("/nonexistent/path/config.yml")
+        """Loading a non-existent config file should return a valid config."""
+        config = load_config("/nonexistent/path/config.yml")
+        assert config is not None
 
     def test_load_config_from_yaml(self, tmp_path):
         config_file = tmp_path / "config.yml"

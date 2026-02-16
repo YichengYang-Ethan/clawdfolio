@@ -16,8 +16,8 @@ def sample_symbol():
 def sample_quote(sample_symbol):
     return Quote(
         symbol=sample_symbol,
-        price=Decimal("185.50"),
-        prev_close=Decimal("183.20"),
+        price=Decimal("175.50"),
+        prev_close=Decimal("173.00"),
     )
 
 
@@ -27,8 +27,8 @@ def sample_position(sample_symbol):
         symbol=sample_symbol,
         quantity=Decimal("100"),
         avg_cost=Decimal("150.00"),
-        market_value=Decimal("18550.00"),
-        current_price=Decimal("185.50"),
+        market_value=Decimal("17550.00"),
+        current_price=Decimal("175.50"),
     )
 
 
@@ -37,5 +37,5 @@ def sample_portfolio(sample_position):
     return Portfolio(
         positions=[sample_position],
         net_assets=Decimal("50000"),
-        market_value=Decimal("18550"),
+        market_value=Decimal("17550"),
     )

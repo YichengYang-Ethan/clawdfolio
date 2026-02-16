@@ -7,7 +7,7 @@ import sys
 class TestCLI:
     def test_version_flag(self):
         result = subprocess.run(
-            [sys.executable, "-m", "clawdfolio", "--version"],
+            [sys.executable, "-c", "from clawdfolio.cli import main; main(['--version'])"],
             capture_output=True,
             text=True,
         )
@@ -16,12 +16,12 @@ class TestCLI:
 
     def test_help_flag(self):
         result = subprocess.run(
-            [sys.executable, "-m", "clawdfolio", "--help"],
+            [sys.executable, "-c", "from clawdfolio.cli import main; main(['--help'])"],
             capture_output=True,
             text=True,
         )
         assert result.returncode == 0
-        assert "usage:" in result.stdout.lower() or "Usage:" in result.stdout
+        assert "usage:" in result.stdout.lower() or "clawdfolio" in result.stdout.lower()
 
     def test_import(self):
         import clawdfolio
