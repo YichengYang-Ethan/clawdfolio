@@ -248,14 +248,35 @@ MIT License - see [LICENSE](LICENSE)
 
 ## Ecosystem
 
-Clawdfolio is the core engine of a broader quantitative finance toolkit:
+Clawdfolio is the data hub of a quantitative finance toolkit. Other projects either consume its output or share its analytical methodology.
 
-| Project | Layer | Description |
-|---------|-------|-------------|
+```
+         ┌──────────────────────────┐
+         │   ML Research Layer      │
+         │  crypto-prediction (短期) │
+         │  ESG-prediction   (长期) │
+         └────────────┬─────────────┘
+                      │ research informs alert thresholds
+         ┌────────────▼─────────────┐
+         │  clawdfolio (this repo)  │
+         │  brokers · risk · alerts │
+         │  clawdfolio summary -o json
+         └────────────┬─────────────┘
+                      │ JSON data feed
+         ┌────────────▼─────────────┐
+         │   Visualization Layer    │
+         │  investment-dashboard    │
+         │  QQQ-200D-Dashboard     │
+         └──────────────────────────┘
+```
+
+| Project | Layer | Relationship to clawdfolio |
+|---------|-------|---------------------------|
 | **clawdfolio** (this repo) | Core Engine | Risk analytics, broker integration, signal generation, options strategy |
-| [investment-dashboard](https://github.com/YichengYang-Ethan/investment-dashboard) | Visualization | React/TypeScript portfolio frontend consuming clawdfolio data |
-| [QQQ-200D-Deviation-Dashboard](https://github.com/YichengYang-Ethan/QQQ-200D-Deviation-Dashboard) | Visualization | Market timing tool using SMA deviation methodology |
-| [crypto-return-prediction](https://github.com/YichengYang-Ethan/crypto-return-prediction-kaggle) | ML Research | LightGBM crypto prediction with shared indicator framework |
+| [investment-dashboard](https://github.com/YichengYang-Ethan/investment-dashboard) | Visualization | Web frontend — consumes `clawdfolio summary -o json` for portfolio data |
+| [QQQ-200D-Deviation-Dashboard](https://github.com/YichengYang-Ethan/QQQ-200D-Deviation-Dashboard) | Visualization | Implements clawdfolio's SMA deviation methodology as a standalone React dashboard |
+| [crypto-return-prediction](https://github.com/YichengYang-Ethan/crypto-return-prediction-kaggle) | ML Research | Short-term momentum prediction — shares RSI/Bollinger feature engineering |
+| [ESG-Driven-Stock-Value-Prediction](https://github.com/YichengYang-Ethan/ESG-Driven-Stock-Value-Prediction) | ML Research | Long-term value factor research — complements clawdfolio's technical indicators with fundamental ESG signals |
 
 ---
 

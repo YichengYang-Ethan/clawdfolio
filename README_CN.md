@@ -248,14 +248,35 @@ MIT License - 查看 [LICENSE](LICENSE)
 
 ## 生态系统
 
-Clawdfolio 是量化金融工具链的核心引擎：
+Clawdfolio 是量化金融工具链的数据中枢，其他项目通过 JSON 数据接口或共享分析方法论与之关联。
 
-| 项目 | 层级 | 说明 |
-|------|------|------|
+```
+         ┌──────────────────────────┐
+         │     ML 研究层            │
+         │  crypto-prediction (短期) │
+         │  ESG-prediction   (长期) │
+         └────────────┬─────────────┘
+                      │ 研究成果 → 预警阈值
+         ┌────────────▼─────────────┐
+         │  clawdfolio（本仓库）     │
+         │  券商 · 风险 · 预警       │
+         │  clawdfolio summary -o json
+         └────────────┬─────────────┘
+                      │ JSON 数据输出
+         ┌────────────▼─────────────┐
+         │      可视化层             │
+         │  investment-dashboard    │
+         │  QQQ-200D-Dashboard     │
+         └──────────────────────────┘
+```
+
+| 项目 | 层级 | 与 clawdfolio 的关系 |
+|------|------|---------------------|
 | **clawdfolio**（本仓库） | 核心引擎 | 风险分析、券商对接、信号生成、期权策略 |
-| [investment-dashboard](https://github.com/YichengYang-Ethan/investment-dashboard) | 可视化层 | React/TypeScript 组合管理前端 |
-| [QQQ-200D-Deviation-Dashboard](https://github.com/YichengYang-Ethan/QQQ-200D-Deviation-Dashboard) | 可视化层 | 基于均线偏离度的市场择时工具 |
-| [crypto-return-prediction](https://github.com/YichengYang-Ethan/crypto-return-prediction-kaggle) | ML 研究 | 使用共享指标框架的加密货币收益预测 |
+| [investment-dashboard](https://github.com/YichengYang-Ethan/investment-dashboard) | 可视化层 | Web 前端 — 消费 `clawdfolio summary -o json` 的持仓数据 |
+| [QQQ-200D-Deviation-Dashboard](https://github.com/YichengYang-Ethan/QQQ-200D-Deviation-Dashboard) | 可视化层 | 将 clawdfolio 的 SMA 偏离度方法论实现为独立 React 面板 |
+| [crypto-return-prediction](https://github.com/YichengYang-Ethan/crypto-return-prediction-kaggle) | ML 研究 | 短期动量预测 — 共享 RSI/布林带特征工程方法 |
+| [ESG-Driven-Stock-Value-Prediction](https://github.com/YichengYang-Ethan/ESG-Driven-Stock-Value-Prediction) | ML 研究 | 长期价值因子研究 — 以 ESG 基本面信号补充技术指标 |
 
 ---
 
