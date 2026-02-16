@@ -246,6 +246,19 @@ MIT License - 查看 [LICENSE](LICENSE)
 
 ---
 
+## 生态系统
+
+Clawdfolio 是量化金融工具链的核心引擎：
+
+| 项目 | 层级 | 说明 |
+|------|------|------|
+| **clawdfolio**（本仓库） | 核心引擎 | 风险分析、券商对接、信号生成、期权策略 |
+| [investment-dashboard](https://github.com/YichengYang-Ethan/investment-dashboard) | 可视化层 | React/TypeScript 组合管理前端 |
+| [QQQ-200D-Deviation-Dashboard](https://github.com/YichengYang-Ethan/QQQ-200D-Deviation-Dashboard) | 可视化层 | 基于均线偏离度的市场择时工具 |
+| [crypto-return-prediction](https://github.com/YichengYang-Ethan/crypto-return-prediction-kaggle) | ML 研究 | 使用共享指标框架的加密货币收益预测 |
+
+---
+
 ## 链接
 
 - [GitHub 仓库](https://github.com/YichengYang-Ethan/clawdfolio)
