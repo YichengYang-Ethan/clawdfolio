@@ -179,6 +179,10 @@ class FutuBroker(BaseBroker):
                 ticker = code.split(".", 1)[1]
                 symbol = Symbol(ticker=ticker, exchange=Exchange.NYSE)
 
+                # Detect option positions via position_side or sec_type if available
+                sec_type = str(r.get("sec_type", "")).upper()
+                is_option = sec_type in ("OPT", "OPTION", "DRVT")
+
                 qty = Decimal(str(r.get("qty", 0)))
                 avg_cost = Decimal(str(r.get("cost_price", 0) or 0))
                 price = Decimal(str(r.get("nominal_price", 0) or 0))
@@ -211,6 +215,7 @@ class FutuBroker(BaseBroker):
                     current_price=price,
                     name=str(r.get("stock_name", "")),
                     source="futu",
+                    is_option=is_option,
                 ))
 
         except BrokerError:

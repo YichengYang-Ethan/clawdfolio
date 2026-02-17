@@ -62,6 +62,14 @@ class OptionBuybackConfig:
 
 
 @dataclass
+class NotificationConfig:
+    """Notification channel configuration."""
+
+    telegram: dict[str, str] = field(default_factory=dict)
+    email: dict[str, str] = field(default_factory=dict)
+
+
+@dataclass
 class Config:
     """Main configuration for Portfolio Monitor."""
 
@@ -81,6 +89,9 @@ class Config:
 
     # Option buyback monitor settings
     option_buyback: OptionBuybackConfig = field(default_factory=OptionBuybackConfig)
+
+    # Notification settings
+    notifications: NotificationConfig = field(default_factory=NotificationConfig)
 
     # Output settings
     output_format: str = "console"  # console, json
@@ -161,6 +172,13 @@ class Config:
         if alerts.pnl_trigger <= 0:
             raise ConfigError(f"pnl_trigger must be positive, got {alerts.pnl_trigger}")
 
+        # Parse notifications
+        notif_data = data.get("notifications", {})
+        notifications = NotificationConfig(
+            telegram=dict(notif_data.get("telegram", {})),
+            email={k: str(v) for k, v in notif_data.get("email", {}).items()},
+        )
+
         return cls(
             brokers=brokers,
             alerts=alerts,
@@ -169,6 +187,7 @@ class Config:
             cache_ttl=data.get("cache_ttl", 300),
             leveraged_etfs=leveraged_etfs,
             option_buyback=option_buyback,
+            notifications=notifications,
             output_format=data.get("output_format", "console"),
             verbose=data.get("verbose", False),
         )
@@ -218,6 +237,10 @@ class Config:
                     }
                     for target in self.option_buyback.targets
                 ],
+            },
+            "notifications": {
+                "telegram": self.notifications.telegram,
+                "email": self.notifications.email,
             },
             "output_format": self.output_format,
             "verbose": self.verbose,

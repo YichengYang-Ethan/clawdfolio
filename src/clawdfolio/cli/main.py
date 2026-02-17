@@ -86,6 +86,31 @@ def create_parser() -> argparse.ArgumentParser:
         choices=["info", "warning", "critical"],
         help="Filter by severity",
     )
+    alerts_parser.add_argument(
+        "--notify",
+        choices=["telegram", "email"],
+        help="Send alerts via notification channel",
+    )
+    alerts_parser.add_argument(
+        "--bot-token",
+        help="Telegram bot token (overrides config)",
+    )
+    alerts_parser.add_argument(
+        "--chat-id",
+        help="Telegram chat ID (overrides config)",
+    )
+    alerts_parser.add_argument(
+        "--smtp-host",
+        help="SMTP host (overrides config)",
+    )
+    alerts_parser.add_argument(
+        "--smtp-user",
+        help="SMTP username (overrides config)",
+    )
+    alerts_parser.add_argument(
+        "--to",
+        help="Email recipient (overrides config)",
+    )
 
     # Earnings command
     earnings_parser = subparsers.add_parser("earnings", help="Show upcoming earnings")
@@ -205,6 +230,43 @@ def create_parser() -> argparse.ArgumentParser:
         "--strict",
         action="store_true",
         help="Exit with code 1 if no target is triggered",
+    )
+
+    # Snapshot command
+    snapshot_parser = subparsers.add_parser("snapshot", help="Save portfolio snapshot to history")
+    snapshot_parser.add_argument(
+        "--file",
+        help="Path to history CSV (default: ~/.clawdfolio/history.csv)",
+    )
+
+    # Performance command
+    performance_parser = subparsers.add_parser("performance", help="Show portfolio performance over time")
+    performance_parser.add_argument(
+        "--period",
+        choices=["1m", "3m", "6m", "1y", "all"],
+        default="all",
+        help="Period to display (default: all)",
+    )
+    performance_parser.add_argument(
+        "--file",
+        help="Path to history CSV (default: ~/.clawdfolio/history.csv)",
+    )
+
+    # Compare command
+    compare_parser = subparsers.add_parser("compare", help="Compare portfolio vs benchmark")
+    compare_parser.add_argument(
+        "benchmark",
+        help="Benchmark ticker (e.g. SPY, QQQ)",
+    )
+    compare_parser.add_argument(
+        "--period",
+        choices=["1m", "3m", "6m", "1y", "all"],
+        default="1y",
+        help="Period to compare (default: 1y)",
+    )
+    compare_parser.add_argument(
+        "--file",
+        help="Path to history CSV (default: ~/.clawdfolio/history.csv)",
     )
 
     # Finance command
@@ -451,10 +513,53 @@ def cmd_alerts(args: Namespace) -> int:
                     print(str(alert))
                     print()
 
+        # Send notifications if requested
+        notify_method = getattr(args, "notify", None)
+        if notify_method and all_alerts:
+            _send_alert_notifications(args, config, all_alerts, notify_method)
+
         return 0
     except Exception as e:
         print(f"Error: {e}", file=sys.stderr)
         return 1
+
+
+def _send_alert_notifications(args, config, alerts, method: str) -> None:
+    """Send alert notifications via the specified method."""
+    from ..notifications import send_notification
+
+    # Build message text
+    lines = [f"Clawdfolio Alerts ({len(alerts)} triggered)\n"]
+    for a in alerts:
+        lines.append(f"[{a.severity.value.upper()}] {a.title}")
+        lines.append(a.message)
+        lines.append("")
+    message = "\n".join(lines)
+
+    # Build config from CLI args + config file fallback
+    if method == "telegram":
+        notif_config = dict(config.notifications.telegram)
+        if getattr(args, "bot_token", None):
+            notif_config["bot_token"] = args.bot_token
+        if getattr(args, "chat_id", None):
+            notif_config["chat_id"] = args.chat_id
+    elif method == "email":
+        notif_config = dict(config.notifications.email)
+        if getattr(args, "smtp_host", None):
+            notif_config["smtp_host"] = args.smtp_host
+        if getattr(args, "smtp_user", None):
+            notif_config["username"] = args.smtp_user
+        if getattr(args, "to", None):
+            notif_config["to"] = args.to
+    else:
+        print(f"Unknown notification method: {method}", file=sys.stderr)
+        return
+
+    try:
+        send_notification(method, notif_config, message)
+        print(f"Notifications sent via {method}.")
+    except Exception as e:
+        print(f"Failed to send {method} notification: {e}", file=sys.stderr)
 
 
 def cmd_earnings(args: Namespace) -> int:
@@ -571,6 +676,108 @@ def cmd_dca(args: Namespace) -> int:
             print(f"Current Value: ${result['current_value']:,.2f}")
             sign = "+" if result['total_return'] > 0 else ""
             print(f"Total Return: {sign}{result['total_return_pct']:.1f}%")
+
+        return 0
+    except Exception as e:
+        print(f"Error: {e}", file=sys.stderr)
+        return 1
+
+
+def cmd_snapshot(args: Namespace) -> int:
+    """Handle snapshot command — save portfolio snapshot to history."""
+    from ..core.history import append_snapshot
+
+    try:
+        portfolio = _get_portfolio(args)
+        written, msg = append_snapshot(portfolio, path=getattr(args, "file", None))
+        print(msg)
+        return 0
+    except Exception as e:
+        print(f"Error: {e}", file=sys.stderr)
+        return 1
+
+
+def cmd_performance(args: Namespace) -> int:
+    """Handle performance command — show NAV curve and stats."""
+    from ..core.history import (
+        compute_performance,
+        filter_by_period,
+        format_performance_table,
+        read_snapshots,
+    )
+    from ..output.json import to_json
+
+    try:
+        rows = read_snapshots(path=getattr(args, "file", None))
+        rows = filter_by_period(rows, period=args.period)
+        perf = compute_performance(rows)
+
+        if args.output == "json":
+            print(to_json(perf))
+        else:
+            print(format_performance_table(perf))
+
+        return 0
+    except Exception as e:
+        print(f"Error: {e}", file=sys.stderr)
+        return 1
+
+
+def cmd_compare(args: Namespace) -> int:
+    """Handle compare command — portfolio vs benchmark."""
+    from ..core.history import filter_by_period, read_snapshots
+    from ..market.data import get_history
+    from ..output.json import to_json
+
+    try:
+        rows = read_snapshots(path=getattr(args, "file", None))
+        rows = filter_by_period(rows, period=args.period)
+
+        if not rows:
+            print("No snapshot data available. Run 'clawdfolio snapshot' first.")
+            return 1
+
+        sorted_rows = sorted(rows, key=lambda r: r.date)
+        port_start = sorted_rows[0].net_assets
+        port_end = sorted_rows[-1].net_assets
+        port_return = ((port_end - port_start) / port_start * 100) if port_start else 0.0
+
+        # Fetch benchmark
+        period_map = {"1m": "1mo", "3m": "3mo", "6m": "6mo", "1y": "1y", "all": "5y"}
+        yf_period = period_map.get(args.period, "1y")
+        bench_df = get_history(args.benchmark, period=yf_period)
+
+        if bench_df is None or bench_df.empty or "Close" not in bench_df.columns:
+            print(f"Could not fetch benchmark data for {args.benchmark}")
+            return 1
+
+        close = bench_df["Close"].dropna()
+        if close.empty:
+            print(f"No price data for {args.benchmark}")
+            return 1
+
+        bench_start = float(close.iloc[0])
+        bench_end = float(close.iloc[-1])
+        bench_return = ((bench_end - bench_start) / bench_start * 100) if bench_start else 0.0
+
+        alpha = port_return - bench_return
+
+        result = {
+            "benchmark": args.benchmark,
+            "period": args.period,
+            "portfolio_return_pct": round(port_return, 2),
+            "benchmark_return_pct": round(bench_return, 2),
+            "alpha_pct": round(alpha, 2),
+        }
+
+        if args.output == "json":
+            print(to_json(result))
+        else:
+            print(f"\nPortfolio vs {args.benchmark} ({args.period})")
+            print("=" * 45)
+            print(f"Portfolio Return: {port_return:>+10.2f}%")
+            print(f"{args.benchmark:8} Return: {bench_return:>+10.2f}%")
+            print(f"Alpha:            {alpha:>+10.2f}%")
 
         return 0
     except Exception as e:
@@ -838,6 +1045,9 @@ def main(argv: list[str] | None = None) -> int:
         "earnings": cmd_earnings,
         "export": cmd_export,
         "dca": cmd_dca,
+        "snapshot": cmd_snapshot,
+        "performance": cmd_performance,
+        "compare": cmd_compare,
         "options": cmd_options,
         "finance": cmd_finance,
     }

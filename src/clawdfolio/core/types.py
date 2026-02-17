@@ -135,6 +135,7 @@ class Position:
     prev_close: Decimal | None = None
     name: str = ""
     source: str = ""
+    is_option: bool = False
     _weight: float = field(default=0.0, init=False, repr=False)
 
     @property

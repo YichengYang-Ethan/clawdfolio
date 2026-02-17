@@ -71,7 +71,10 @@ class ConsoleFormatter:
         table.add_column("Day P&L", justify="right")
         table.add_column("Total P&L", justify="right")
 
-        for pos in portfolio.sorted_by_weight[:15]:
+        equity_positions = [p for p in portfolio.sorted_by_weight if not p.is_option]
+        option_positions = [p for p in portfolio.sorted_by_weight if p.is_option]
+
+        for pos in equity_positions[:15]:
             day_color = _get_color(float(pos.day_pnl))
             total_color = _get_color(float(pos.unrealized_pnl))
 
@@ -86,6 +89,29 @@ class ConsoleFormatter:
             )
 
         self.console.print(table)
+
+        # Option positions in a separate table
+        if option_positions:
+            opt_table = Table(title="Option Positions")
+            opt_table.add_column("Contract", style="magenta", no_wrap=True)
+            opt_table.add_column("Qty", justify="right")
+            opt_table.add_column("Avg Cost", justify="right")
+            opt_table.add_column("Price", justify="right")
+            opt_table.add_column("Value", justify="right")
+            opt_table.add_column("P&L", justify="right")
+
+            for pos in option_positions:
+                pnl_color = _get_color(float(pos.unrealized_pnl))
+                opt_table.add_row(
+                    pos.symbol.ticker,
+                    f"{float(pos.quantity):,.0f}",
+                    f"${float(pos.avg_cost or 0):,.2f}",
+                    f"${float(pos.current_price or 0):,.2f}",
+                    f"${float(pos.market_value):,.0f}",
+                    Text(_format_money(float(pos.unrealized_pnl), 0), style=pnl_color),
+                )
+
+            self.console.print(opt_table)
 
     def print_risk_metrics(self, metrics: RiskMetrics) -> None:
         """Print risk metrics."""
@@ -174,9 +200,21 @@ def _print_portfolio_plain(portfolio: Portfolio) -> None:
     print(f"Net Assets: ${float(portfolio.net_assets):,.2f}")
     print(f"Cash: ${float(portfolio.cash):,.2f}")
     print(f"Day P&L: {_format_money(float(portfolio.day_pnl))}")
+
+    equities = [p for p in portfolio.sorted_by_weight if not p.is_option]
+    options = [p for p in portfolio.sorted_by_weight if p.is_option]
+
     print("\nTop Holdings:")
-    for pos in portfolio.sorted_by_weight[:10]:
+    for pos in equities[:10]:
         print(f"  {pos.symbol.ticker}: {pos.weight*100:.1f}% | ${float(pos.market_value):,.0f}")
+
+    if options:
+        print("\nOption Positions:")
+        for pos in options:
+            print(
+                f"  {pos.symbol.ticker}: qty={float(pos.quantity):.0f} "
+                f"| ${float(pos.market_value):,.0f}"
+            )
 
 
 def _print_risk_plain(metrics: RiskMetrics) -> None:

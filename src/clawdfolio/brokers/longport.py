@@ -129,8 +129,7 @@ class LongportBroker(BaseBroker):
                         continue
 
                     sym = str(p.symbol)
-                    if _is_option_symbol(sym):
-                        continue
+                    is_option = _is_option_symbol(sym)
 
                     qty = Decimal(str(p.quantity))
                     if abs(qty) < Decimal("0.000000001"):
@@ -145,6 +144,7 @@ class LongportBroker(BaseBroker):
                         avg_cost=Decimal(str(getattr(p, "cost_price", 0) or 0)),
                         name=str(getattr(p, "symbol_name", "")),
                         source="longport",
+                        is_option=is_option,
                     )
                     positions.append(pos_obj)
                     symbols_to_quote.append(sym)
