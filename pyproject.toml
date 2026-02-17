@@ -70,7 +70,6 @@ dev = [
     "pytest-cov>=4.0.0",
     "mypy>=1.0.0",
     "ruff>=0.1.0",
-    "black>=23.0.0",
     "types-PyYAML>=6.0.0",
 ]
 
@@ -112,9 +111,9 @@ known-first-party = ["clawdfolio"]
 
 [tool.mypy]
 python_version = "3.10"
-warn_return_any = false
+warn_return_any = true
 warn_unused_ignores = false
-disallow_untyped_defs = false
+disallow_untyped_defs = true
 ignore_missing_imports = true
 check_untyped_defs = true
 exclude = "(^src/clawdfolio/legacy_finance/)"
