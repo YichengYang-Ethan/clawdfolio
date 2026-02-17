@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 import re
+import warnings
 from datetime import datetime
 from decimal import Decimal
 from typing import TYPE_CHECKING, Any
@@ -126,6 +127,11 @@ class LongportBroker(BaseBroker):
                 for p in getattr(ch, "positions", []):
                     mkt = str(getattr(p, "market", "")).split(".")[-1].upper()
                     if mkt != "US":
+                        sym_name = str(getattr(p, "symbol", "unknown"))
+                        warnings.warn(
+                            f"Skipping non-US position {sym_name} (market={mkt})",
+                            stacklevel=2,
+                        )
                         continue
 
                     sym = str(p.symbol)
