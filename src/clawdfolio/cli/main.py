@@ -21,7 +21,7 @@ def create_parser() -> argparse.ArgumentParser:
 
     parser = argparse.ArgumentParser(
         prog="clawdfolio",
-        description="AI portfolio monitoring for Clawdbot with v2 finance workflows and production-grade reliability",
+        description="Quantitative portfolio toolkit with multi-broker aggregation, risk analytics, and finance workflows",
     )
 
     parser.add_argument(

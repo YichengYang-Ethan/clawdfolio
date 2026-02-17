@@ -7,13 +7,9 @@
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
-[![Claude Code](https://img.shields.io/badge/Claude%20Code-Compatible-blueviolet)](https://github.com/anthropics/claude-code)
-
 English | [中文](README_CN.md)
 
 > **Production-grade quantitative portfolio toolkit** — multi-broker aggregation, institutional risk analytics, options lifecycle management, and 20+ automated finance workflows.
->
-> *Also available as a native [Claude Code](https://github.com/anthropics/claude-code) / Clawdbot skill.*
 
 ---
 
@@ -25,7 +21,7 @@ English | [中文](README_CN.md)
 | Basic P&L tracking | VaR, Sharpe, Beta, Max Drawdown, HHI |
 | Single broker view | Multi-broker aggregation |
 | Spreadsheet alerts | Smart RSI / price / P&L alerts |
-| No extensibility | Python API + CLI + Claude Code skill |
+| No extensibility | Python API + CLI |
 
 ---
 
@@ -199,22 +195,6 @@ option_buyback:
 
 ---
 
-## Claude Code & Clawdbot Integration
-
-Clawdfolio works as a native skill in [Claude Code](https://github.com/anthropics/claude-code) and Clawdbot environments:
-
-```
-/clawdfolio summary
-/clawdfolio risk
-/clawdfolio quotes AAPL MSFT NVDA
-/clawdfolio alerts
-/clawdfolio options chain TQQQ --expiry 2026-06-18
-```
-
-The skill is registered via [`SKILL.md`](SKILL.md) and supports all CLI commands through natural language interaction.
-
----
-
 ## Finance Workflows
 
 20 production workflows migrated from live trading infrastructure, organized by category:
@@ -233,40 +213,6 @@ clawdfolio finance list                # Browse all workflows by category
 clawdfolio finance init                # Bootstrap ~/.clawdfolio/finance workspace
 clawdfolio finance run <workflow_id>   # Execute a workflow
 ```
-
----
-
-## Ecosystem
-
-Clawdfolio is the data hub of a quantitative finance toolkit. Other projects consume its output or share its analytical methodology.
-
-```
-         ┌──────────────────────────┐
-         │   ML Research Layer      │
-         │  crypto-prediction       │
-         │  ESG-prediction          │
-         └────────────┬─────────────┘
-                      │ research informs alert thresholds
-         ┌────────────▼─────────────┐
-         │  clawdfolio (this repo)  │
-         │  brokers · risk · alerts │
-         │  clawdfolio summary -o json
-         └────────────┬─────────────┘
-                      │ JSON data feed
-         ┌────────────▼─────────────┐
-         │   Visualization Layer    │
-         │  investment-dashboard    │
-         │  QQQ-200D-Dashboard     │
-         └──────────────────────────┘
-```
-
-| Project | Layer | Relationship |
-|---------|-------|-------------|
-| **clawdfolio** (this repo) | Core Engine | Risk analytics, broker integration, signal generation, options strategy |
-| [investment-dashboard](https://github.com/YichengYang-Ethan/investment-dashboard) | Visualization | Web frontend — consumes `clawdfolio summary -o json` for portfolio data |
-| [QQQ-200D-Deviation-Dashboard](https://github.com/YichengYang-Ethan/QQQ-200D-Deviation-Dashboard) | Visualization | Implements clawdfolio's SMA deviation methodology as a standalone React dashboard |
-| [crypto-return-prediction](https://github.com/YichengYang-Ethan/crypto-return-prediction-kaggle) | ML Research | Short-term momentum prediction — shares RSI/Bollinger feature engineering |
-| [ESG-Driven-Stock-Value-Prediction](https://github.com/YichengYang-Ethan/ESG-Driven-Stock-Value-Prediction) | ML Research | Long-term value factor research — ESG signals complementing technical indicators |
 
 ---
 
@@ -329,4 +275,3 @@ MIT License — see [LICENSE](LICENSE)
 - [GitHub Repository](https://github.com/YichengYang-Ethan/clawdfolio)
 - [Report Issues](https://github.com/YichengYang-Ethan/clawdfolio/issues)
 - [Options Strategy Playbook](docs/OPTIONS_STRATEGY_PLAYBOOK_v2.1.md)
-- [Claude Code](https://github.com/anthropics/claude-code)

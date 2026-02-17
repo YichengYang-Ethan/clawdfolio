@@ -7,13 +7,9 @@
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
-[![Claude Code](https://img.shields.io/badge/Claude%20Code-兼容-blueviolet)](https://github.com/anthropics/claude-code)
-
 [English](README.md) | 中文
 
 > **生产级量化投资组合工具包** — 多券商聚合、机构级风险分析、期权全生命周期管理，以及 20+ 自动化金融工作流。
->
-> *同时支持作为 [Claude Code](https://github.com/anthropics/claude-code) / Clawdbot 原生技能使用。*
 
 ---
 
@@ -25,7 +21,7 @@
 | 简单盈亏统计 | VaR、夏普比率、Beta、最大回撤、HHI |
 | 单一券商视图 | 多券商聚合 |
 | Excel 设置警报 | 智能 RSI / 价格 / 盈亏警报 |
-| 无法扩展 | Python API + CLI + Claude Code 技能 |
+| 无法扩展 | Python API + CLI |
 
 ---
 
@@ -177,22 +173,6 @@ option_buyback:
 
 ---
 
-## Claude Code 与 Clawdbot 集成
-
-Clawdfolio 可作为 [Claude Code](https://github.com/anthropics/claude-code) 和 Clawdbot 环境的原生技能使用：
-
-```
-/clawdfolio summary
-/clawdfolio risk
-/clawdfolio quotes AAPL MSFT NVDA
-/clawdfolio alerts
-/clawdfolio options chain TQQQ --expiry 2026-06-18
-```
-
-技能通过 [`SKILL.md`](SKILL.md) 注册，支持通过自然语言交互执行所有 CLI 命令。
-
----
-
 ## 金融工作流
 
 从实盘交易基础设施迁移的 20 个生产工作流，按类别组织：
@@ -211,40 +191,6 @@ clawdfolio finance list                # 按类别浏览所有工作流
 clawdfolio finance init                # 初始化 ~/.clawdfolio/finance 工作区
 clawdfolio finance run <workflow_id>   # 执行工作流
 ```
-
----
-
-## 生态系统
-
-Clawdfolio 是量化金融工具链的数据中枢，其他项目通过 JSON 数据接口或共享分析方法论与之关联。
-
-```
-         ┌──────────────────────────┐
-         │     ML 研究层            │
-         │  crypto-prediction       │
-         │  ESG-prediction          │
-         └────────────┬─────────────┘
-                      │ 研究成果 → 预警阈值
-         ┌────────────▼─────────────┐
-         │  clawdfolio（本仓库）     │
-         │  券商 · 风险 · 预警       │
-         │  clawdfolio summary -o json
-         └────────────┬─────────────┘
-                      │ JSON 数据输出
-         ┌────────────▼─────────────┐
-         │      可视化层             │
-         │  investment-dashboard    │
-         │  QQQ-200D-Dashboard     │
-         └──────────────────────────┘
-```
-
-| 项目 | 层级 | 关系 |
-|------|------|------|
-| **clawdfolio**（本仓库） | 核心引擎 | 风险分析、券商对接、信号生成、期权策略 |
-| [investment-dashboard](https://github.com/YichengYang-Ethan/investment-dashboard) | 可视化层 | Web 前端 — 消费 `clawdfolio summary -o json` 的持仓数据 |
-| [QQQ-200D-Deviation-Dashboard](https://github.com/YichengYang-Ethan/QQQ-200D-Deviation-Dashboard) | 可视化层 | 将 clawdfolio 的 SMA 偏离度方法论实现为独立 React 面板 |
-| [crypto-return-prediction](https://github.com/YichengYang-Ethan/crypto-return-prediction-kaggle) | ML 研究 | 短期动量预测 — 共享 RSI/布林带特征工程方法 |
-| [ESG-Driven-Stock-Value-Prediction](https://github.com/YichengYang-Ethan/ESG-Driven-Stock-Value-Prediction) | ML 研究 | 长期价值因子研究 — 以 ESG 基本面信号补充技术指标 |
 
 ---
 
@@ -295,4 +241,3 @@ MIT License — 查看 [LICENSE](LICENSE)
 - [GitHub 仓库](https://github.com/YichengYang-Ethan/clawdfolio)
 - [问题反馈](https://github.com/YichengYang-Ethan/clawdfolio/issues)
 - [期权策略手册](docs/OPTIONS_STRATEGY_PLAYBOOK_v2.1.md)
-- [Claude Code](https://github.com/anthropics/claude-code)
