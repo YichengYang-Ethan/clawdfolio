@@ -273,7 +273,19 @@ Clawdfolio is the data hub of a quantitative finance toolkit. Other projects con
 <details>
 <summary><strong>Changelog</strong></summary>
 
-### v2.2.0 (2025-02-14)
+### v2.3.0 (2026-02-16)
+
+- Sortino ratio and CVaR/Expected Shortfall risk metrics
+- Portfolio RSI in `analyze_risk()` output
+- `clawdfolio export` CLI command (CSV/JSON)
+- Dynamic US trading calendar with algorithmic holiday generation
+- Batched SPY/QQQ benchmark fetching via `get_history_multi()`
+- O(1) position lookup via `_ticker_index`
+- `calculate_ema()` vectorized with `pd.Series.ewm()`
+- Fixed invalid yfinance period strings in DCA calculation
+- Coverage enforcement at 48%, Python 3.13 in CI, `pip-audit` scanning
+
+### v2.2.0 (2026-02-14)
 
 - Thread-safe market data caching (`threading.Lock`)
 - Batch quote fetching via `yf.download` with per-ticker fallback
@@ -284,13 +296,13 @@ Clawdfolio is the data hub of a quantitative finance toolkit. Other projects con
 - Centralized ticker normalization (`_yf_symbol()`)
 - Config path migration to `clawdfolio` namespace (backward-compatible)
 
-### v2.1.0 (2025-01-28)
+### v2.1.0 (2026-01-28)
 
 - Options Strategy Playbook v2.1 (`docs/OPTIONS_STRATEGY_PLAYBOOK_v2.1.md`)
 - Research-to-execution framework for CC and Sell Put lifecycle
 - Explicit gamma-risk, margin, leverage, and assignment decision rules
 
-### v2.0.0 (2025-01-15)
+### v2.0.0 (2026-01-15)
 
 - Full finance migration: 20 production workflows from live trading infrastructure
 - `clawdfolio finance` command group (list, init, run)

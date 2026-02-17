@@ -26,7 +26,7 @@ pre-commit install
 
 ## Code Style
 
-- **Formatter**: [Ruff](https://github.com/astral-sh/ruff) (line length 88)
+- **Formatter**: [Ruff](https://github.com/astral-sh/ruff) (line length 100)
 - **Type hints**: Required for all public functions
 - **Docstrings**: Google style for public APIs
 - Pre-commit hooks enforce formatting automatically

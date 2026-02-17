@@ -136,4 +136,4 @@ exclude_lines = [
     "if TYPE_CHECKING:",
     "if __name__ == .__main__.:",
 ]
-fail_under = 44
+fail_under = 48
