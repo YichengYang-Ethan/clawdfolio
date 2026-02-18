@@ -56,7 +56,8 @@ def create_parser() -> argparse.ArgumentParser:
     # Summary command
     summary_parser = subparsers.add_parser("summary", help="Show portfolio summary")
     summary_parser.add_argument(
-        "--top", "-n",
+        "--top",
+        "-n",
         type=int,
         default=10,
         help="Number of top holdings to show (default: 10)",
@@ -122,14 +123,17 @@ def create_parser() -> argparse.ArgumentParser:
     )
 
     # Export command
-    export_parser = subparsers.add_parser("export", help="Export portfolio data to CSV or JSON files")
+    export_parser = subparsers.add_parser(
+        "export", help="Export portfolio data to CSV or JSON files"
+    )
     export_parser.add_argument(
         "what",
         choices=["portfolio", "risk", "alerts"],
         help="What to export",
     )
     export_parser.add_argument(
-        "--format", "-f",
+        "--format",
+        "-f",
         choices=["csv", "json"],
         default="csv",
         help="Export format (default: csv)",
@@ -232,6 +236,14 @@ def create_parser() -> argparse.ArgumentParser:
         help="Exit with code 1 if no target is triggered",
     )
 
+    # Bubble command
+    bubble_parser = subparsers.add_parser("bubble", help="Market Bubble Index")
+    bubble_parser.add_argument(
+        "--export-json",
+        action="store_true",
+        help="Export result as JSON",
+    )
+
     # Factors command
     subparsers.add_parser("factors", help="Fama-French factor exposure analysis")
 
@@ -249,7 +261,9 @@ def create_parser() -> argparse.ArgumentParser:
     )
 
     # Performance command
-    performance_parser = subparsers.add_parser("performance", help="Show portfolio performance over time")
+    performance_parser = subparsers.add_parser(
+        "performance", help="Show portfolio performance over time"
+    )
     performance_parser.add_argument(
         "--period",
         choices=["1m", "3m", "6m", "1y", "all"],
@@ -384,6 +398,7 @@ def cmd_summary(args: Namespace) -> int:
 
         if args.output == "json":
             from ..output.json import JSONFormatter
+
             formatter = JSONFormatter()
             print(formatter.format_portfolio(portfolio))
         else:
@@ -418,7 +433,7 @@ def cmd_quotes(args: Namespace) -> int:
         for ticker, q in quotes.items():
             change = q.change_pct or 0
             sign = "+" if change > 0 else ""
-            print(f"{ticker:8} ${float(q.price):>10,.2f}  {sign}{change*100:.2f}%")
+            print(f"{ticker:8} ${float(q.price):>10,.2f}  {sign}{change * 100:.2f}%")
 
     return 0
 
@@ -434,6 +449,7 @@ def cmd_risk(args: Namespace) -> int:
 
         if args.output == "json":
             from ..output.json import JSONFormatter
+
             formatter = JSONFormatter()
             print(formatter.format_risk_metrics(metrics))
         else:
@@ -466,16 +482,18 @@ def _print_detailed_risk(portfolio: Any, metrics: Any) -> None:
 
     # GARCH volatility
     if metrics.garch_vol_forecast is not None:
-        print(f"\nGARCH(1,1) Vol Forecast: {metrics.garch_vol_forecast*100:.1f}%")
+        print(f"\nGARCH(1,1) Vol Forecast: {metrics.garch_vol_forecast * 100:.1f}%")
 
     # Concentration
     conc = analyze_concentration(portfolio)
     if conc:
         cm = conc.get("metrics")
         if cm:
-            print(f"\nConcentration: HHI={cm.hhi:.3f}  "
-                  f"Top-5={cm.top_5_weight*100:.1f}%  "
-                  f"Max={cm.max_position_ticker} {cm.max_position_weight*100:.1f}%")
+            print(
+                f"\nConcentration: HHI={cm.hhi:.3f}  "
+                f"Top-5={cm.top_5_weight * 100:.1f}%  "
+                f"Max={cm.max_position_ticker} {cm.max_position_weight * 100:.1f}%"
+            )
         eff_n = conc.get("effective_n")
         n_pos = conc.get("n_positions")
         if eff_n is not None and n_pos is not None:
@@ -484,7 +502,9 @@ def _print_detailed_risk(portfolio: Any, metrics: Any) -> None:
         if sectors:
             print("\nSector Exposure:")
             for s in sectors[:5]:
-                print(f"  {s.sector or 'Unknown':20} {s.weight*100:5.1f}%  ({len(s.tickers)} positions)")
+                print(
+                    f"  {s.sector or 'Unknown':20} {s.weight * 100:5.1f}%  ({len(s.tickers)} positions)"
+                )
 
     # Portfolio RSI
     if metrics.rsi_portfolio is not None:
@@ -514,10 +534,12 @@ def cmd_alerts(args: Namespace) -> int:
 
         if args.output == "json":
             from ..output.json import JSONFormatter
+
             formatter = JSONFormatter()
             print(formatter.format_alerts(all_alerts))
         else:
             from ..output.console import RICH_AVAILABLE, ConsoleFormatter
+
             if RICH_AVAILABLE:
                 ConsoleFormatter().print_alerts(all_alerts)
             elif not all_alerts:
@@ -586,6 +608,7 @@ def cmd_earnings(args: Namespace) -> int:
 
         if args.output == "json":
             from ..output.json import to_json
+
             data = [
                 {
                     "ticker": e.ticker,
@@ -627,18 +650,30 @@ def cmd_export(args: Namespace) -> int:
         portfolio = broker.get_portfolio()
 
         if args.what == "portfolio":
-            content = export_portfolio_csv(portfolio) if args.format == "csv" else export_portfolio_json(portfolio)
+            content = (
+                export_portfolio_csv(portfolio)
+                if args.format == "csv"
+                else export_portfolio_json(portfolio)
+            )
         elif args.what == "risk":
             from ..analysis.risk import analyze_risk
+
             metrics = analyze_risk(portfolio)
-            content = export_risk_csv(metrics) if args.format == "csv" else export_risk_json(metrics)
+            content = (
+                export_risk_csv(metrics) if args.format == "csv" else export_risk_json(metrics)
+            )
         elif args.what == "alerts":
             from ..monitors.earnings import EarningsMonitor
             from ..monitors.price import PriceMonitor
+
             all_alerts = []
             all_alerts.extend(PriceMonitor().check_portfolio(portfolio))
             all_alerts.extend(EarningsMonitor().check_portfolio(portfolio))
-            content = export_alerts_csv(all_alerts) if args.format == "csv" else export_alerts_json(all_alerts)
+            content = (
+                export_alerts_csv(all_alerts)
+                if args.format == "csv"
+                else export_alerts_json(all_alerts)
+            )
         else:
             print(f"Unknown export target: {args.what}", file=sys.stderr)
             return 1
@@ -688,7 +723,7 @@ def cmd_dca(args: Namespace) -> int:
             print(f"Avg Cost Basis: ${result['avg_cost_basis']:,.2f}")
             print(f"Current Price: ${result['current_price']:,.2f}")
             print(f"Current Value: ${result['current_value']:,.2f}")
-            sign = "+" if result['total_return'] > 0 else ""
+            sign = "+" if result["total_return"] > 0 else ""
             print(f"Total Return: {sign}{result['total_return_pct']:.1f}%")
 
         return 0
@@ -842,7 +877,9 @@ def cmd_options(args: Namespace) -> int:
         if args.output == "json":
             print(to_json(quote))
         else:
-            print(f"Option quote: {args.symbol} {args.expiry} {quote.option_type}{int(quote.strike)}")
+            print(
+                f"Option quote: {args.symbol} {args.expiry} {quote.option_type}{int(quote.strike)}"
+            )
             print(f"Source: {quote.source}")
             print(f"Bid: {quote.bid}  Ask: {quote.ask}  Last: {quote.last}  Ref: {quote.ref_price}")
             print(
@@ -939,6 +976,53 @@ def cmd_options(args: Namespace) -> int:
     return 1
 
 
+def cmd_bubble(args: Namespace) -> int:
+    """Handle bubble command — Market Bubble Index."""
+    from ..analysis.bubble import calculate_bubble_index
+    from ..output.json import to_json
+
+    try:
+        result = calculate_bubble_index()
+
+        if getattr(args, "export_json", False) or args.output == "json":
+            data = {
+                "composite_score": result.composite_score,
+                "sentiment_score": result.sentiment_score,
+                "liquidity_score": result.liquidity_score,
+                "regime": result.regime,
+                "timestamp": result.timestamp,
+                "indicators": {
+                    k: {
+                        "name": v.name,
+                        "raw_value": v.raw_value,
+                        "normalized_score": v.normalized_score,
+                        "percentile": v.percentile,
+                        "lookback_years": v.lookback_years,
+                    }
+                    for k, v in result.indicators.items()
+                },
+            }
+            print(to_json(data))
+        else:
+            print("\nMarket Bubble Index")
+            print("=" * 50)
+            print(f"Composite Score: {result.composite_score:.1f} / 100")
+            print(f"Regime:          {result.regime}")
+            print(f"Sentiment:       {result.sentiment_score:.1f}")
+            print(f"Liquidity:       {result.liquidity_score:.1f}")
+            print("\nIndicators:")
+            print("-" * 50)
+            for _key, ind in result.indicators.items():
+                print(f"  {ind.name:<30} {ind.normalized_score:5.1f}  (raw={ind.raw_value:.4f})")
+            if result.composite_score >= 85:
+                print("\n  *** DANGER: Bubble risk is elevated! ***")
+
+        return 0
+    except Exception as e:
+        print(f"Error: {e}", file=sys.stderr)
+        return 1
+
+
 def cmd_factors(args: Namespace) -> int:
     """Handle factors command — Fama-French factor exposure."""
     from ..analysis.factors import analyze_factor_exposure
@@ -977,15 +1061,20 @@ def cmd_factors(args: Namespace) -> int:
 
         if args.output == "json":
             from ..output.json import to_json
-            print(to_json({
-                "factor_loadings": exposure.factor_loadings,
-                "t_stats": exposure.t_stats,
-                "p_values": exposure.p_values,
-                "r_squared": exposure.r_squared,
-                "alpha_annualized": exposure.alpha_annualized,
-                "alpha_t_stat": exposure.alpha_t_stat,
-                "alpha_p_value": exposure.alpha_p_value,
-            }))
+
+            print(
+                to_json(
+                    {
+                        "factor_loadings": exposure.factor_loadings,
+                        "t_stats": exposure.t_stats,
+                        "p_values": exposure.p_values,
+                        "r_squared": exposure.r_squared,
+                        "alpha_annualized": exposure.alpha_annualized,
+                        "alpha_t_stat": exposure.alpha_t_stat,
+                        "alpha_p_value": exposure.alpha_p_value,
+                    }
+                )
+            )
         else:
             print("\nFama-French 3-Factor Exposure")
             print("=" * 55)
@@ -1025,6 +1114,7 @@ def cmd_stress(args: Namespace) -> int:
 
         if args.output == "json":
             from ..output.json import to_json
+
             data = [
                 {
                     "scenario": r.scenario,
@@ -1049,14 +1139,16 @@ def cmd_stress(args: Namespace) -> int:
             worst = max(results, key=lambda r: abs(r.portfolio_impact))
             print(f"\nWorst scenario: {worst.scenario}")
             sorted_impacts = sorted(
-                worst.position_impacts, key=lambda x: abs(x["impact"]), reverse=True  # type: ignore[arg-type]
+                worst.position_impacts,
+                key=lambda x: abs(x["impact"]),
+                reverse=True,  # type: ignore[arg-type]
             )
             print("  Top impacted positions:")
             for pi in sorted_impacts[:5]:
                 lev = f" ({pi['leverage']}x)" if pi["leverage"] != 1.0 else ""
                 print(
                     f"    {pi['ticker']:8}{lev:8} "
-                    f"wt={float(pi['weight'])*100:5.1f}%  impact={float(pi['impact'])*100:>+6.2f}%"
+                    f"wt={float(pi['weight']) * 100:5.1f}%  impact={float(pi['impact']) * 100:>+6.2f}%"
                 )
 
         return 0
@@ -1220,6 +1312,7 @@ def main(argv: list[str] | None = None) -> int:
         "performance": cmd_performance,
         "compare": cmd_compare,
         "options": cmd_options,
+        "bubble": cmd_bubble,
         "factors": cmd_factors,
         "stress": cmd_stress,
         "greeks": cmd_greeks,

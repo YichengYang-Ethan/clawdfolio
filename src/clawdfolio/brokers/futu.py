@@ -61,7 +61,7 @@ class FutuBroker(BaseBroker):
             raise BrokerError(
                 "futu",
                 f"OpenD not accessible at {self._host}:{self._port}. "
-                "Please ensure moomoo OpenD is running."
+                "Please ensure moomoo OpenD is running.",
             )
 
         try:
@@ -119,10 +119,7 @@ class FutuBroker(BaseBroker):
         positions = self.get_positions()
 
         # Get account balance
-        ret, funds = self._trade_ctx.accinfo_query(
-            trd_env=TrdEnv.REAL,
-            currency=Currency.USD
-        )
+        ret, funds = self._trade_ctx.accinfo_query(trd_env=TrdEnv.REAL, currency=Currency.USD)
 
         if ret != RET_OK:
             raise BrokerError("futu", f"Failed to fetch account info: {funds}")
@@ -164,8 +161,7 @@ class FutuBroker(BaseBroker):
 
         try:
             ret, pos_df = self._trade_ctx.position_list_query(
-                trd_env=TrdEnv.REAL,
-                position_market=TrdMarket.US
+                trd_env=TrdEnv.REAL, position_market=TrdMarket.US
             )
 
             if ret != RET_OK:
@@ -203,20 +199,22 @@ class FutuBroker(BaseBroker):
                     unrealized_pnl = qty * (price - avg_cost)
                     unrealized_pnl_pct = float((price - avg_cost) / avg_cost)
 
-                positions.append(Position(
-                    symbol=symbol,
-                    quantity=qty,
-                    avg_cost=avg_cost,
-                    market_value=market_value,
-                    unrealized_pnl=unrealized_pnl,
-                    unrealized_pnl_pct=unrealized_pnl_pct,
-                    day_pnl=day_pnl,
-                    day_pnl_pct=day_pnl_pct,
-                    current_price=price,
-                    name=str(r.get("stock_name", "")),
-                    source="futu",
-                    is_option=is_option,
-                ))
+                positions.append(
+                    Position(
+                        symbol=symbol,
+                        quantity=qty,
+                        avg_cost=avg_cost,
+                        market_value=market_value,
+                        unrealized_pnl=unrealized_pnl,
+                        unrealized_pnl_pct=unrealized_pnl_pct,
+                        day_pnl=day_pnl,
+                        day_pnl_pct=day_pnl_pct,
+                        current_price=price,
+                        name=str(r.get("stock_name", "")),
+                        source="futu",
+                        is_option=is_option,
+                    )
+                )
 
         except BrokerError:
             raise

@@ -116,9 +116,7 @@ def run_workflow(
     script_rel = Path("scripts") / workflow.script
     script_path = init_result.workspace / script_rel
     if not script_path.exists():
-        raise FileNotFoundError(
-            f"Workflow script not found in workspace: {script_path}"
-        )
+        raise FileNotFoundError(f"Workflow script not found in workspace: {script_path}")
 
     cmd = [python_bin or sys.executable, str(script_rel)]
     if script_args:

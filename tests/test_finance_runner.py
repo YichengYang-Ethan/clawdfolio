@@ -72,9 +72,7 @@ def test_run_workflow_executes_script_with_args(tmp_path):
     )
 
     assert rc == 0
-    payload = json.loads(
-        (workspace / "scripts" / "data" / "run.json").read_text(encoding="utf-8")
-    )
+    payload = json.loads((workspace / "scripts" / "data" / "run.json").read_text(encoding="utf-8"))
     assert payload["argv"] == ["--foo", "bar"]
 
 

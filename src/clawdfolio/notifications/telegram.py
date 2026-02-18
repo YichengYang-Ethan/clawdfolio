@@ -20,11 +20,13 @@ def send_telegram(bot_token: str, chat_id: str, message: str) -> None:
         message: Text message to send
     """
     url = TELEGRAM_API_URL.format(token=bot_token)
-    payload = json.dumps({
-        "chat_id": chat_id,
-        "text": message,
-        "parse_mode": "HTML",
-    }).encode("utf-8")
+    payload = json.dumps(
+        {
+            "chat_id": chat_id,
+            "text": message,
+            "parse_mode": "HTML",
+        }
+    ).encode("utf-8")
 
     req = urllib.request.Request(
         url,

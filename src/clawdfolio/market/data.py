@@ -26,6 +26,7 @@ def _import_yf() -> Any:
     global _yf
     if _yf is None:
         import yfinance as yf
+
         _yf = yf
     return _yf
 
@@ -90,6 +91,7 @@ def clear_cache() -> None:
 # Ticker normalisation helper
 # ---------------------------------------------------------------------------
 
+
 def _yf_symbol(ticker: str) -> str:
     """Normalise a ticker for yfinance (e.g. ``BRK.B`` → ``BRK-B``)."""
     return ticker.replace(".", "-")
@@ -98,6 +100,7 @@ def _yf_symbol(ticker: str) -> str:
 # ---------------------------------------------------------------------------
 # Price & history
 # ---------------------------------------------------------------------------
+
 
 def get_price(ticker: str) -> float | None:
     """Get current price via yfinance. Cached 5 minutes."""
@@ -181,6 +184,7 @@ def get_history_multi(tickers: list[str], period: str = "1y") -> pd.DataFrame:
 # Quotes
 # ---------------------------------------------------------------------------
 
+
 def get_quote(ticker: str) -> Quote | None:
     """Get a Quote object for a ticker. Cached 5 minutes."""
     yf = _import_yf()
@@ -217,7 +221,11 @@ def _get_quote_uncached(sym: str, ticker: str, yf: Any) -> Quote | None:
                 hist = t.history(period="5d", interval="1d", auto_adjust=False)
                 if isinstance(getattr(hist, "columns", None), pd.MultiIndex):
                     hist.columns = hist.columns.get_level_values(0)
-                closes = hist["Close"].dropna() if hist is not None and not hist.empty and "Close" in hist else None
+                closes = (
+                    hist["Close"].dropna()
+                    if hist is not None and not hist.empty and "Close" in hist
+                    else None
+                )
                 if closes is not None and not closes.empty:
                     if price is None:
                         price = float(closes.iloc[-1])
@@ -268,7 +276,9 @@ def get_quotes_yfinance(tickers: list[str]) -> dict[str, Quote]:
             if isinstance(df.columns, pd.MultiIndex):
                 close_df = df["Close"] if "Close" in df.columns.get_level_values(0) else None
             elif "Close" in df.columns:
-                close_df = df[["Close"]].rename(columns={"Close": syms[0]}) if len(syms) == 1 else None
+                close_df = (
+                    df[["Close"]].rename(columns={"Close": syms[0]}) if len(syms) == 1 else None
+                )
             else:
                 close_df = None
 
@@ -307,9 +317,11 @@ def get_quotes_yfinance(tickers: list[str]) -> dict[str, Quote]:
 # News
 # ---------------------------------------------------------------------------
 
+
 @dataclass
 class NewsItem:
     """News item data."""
+
     title: str
     publisher: str = ""
     link: str = ""
@@ -382,14 +394,18 @@ def get_news(ticker: str, max_items: int = 5) -> list[NewsItem]:
             pub_time = None
             if "pubDate" in content:
                 try:
-                    pub_time = datetime.fromisoformat(content["pubDate"].replace("Z", "+00:00")).replace(tzinfo=None)
+                    pub_time = datetime.fromisoformat(
+                        content["pubDate"].replace("Z", "+00:00")
+                    ).replace(tzinfo=None)
                 except (ValueError, TypeError):
                     pass
             elif "providerPublishTime" in item:
                 pub_time = datetime.fromtimestamp(item["providerPublishTime"])
 
             provider = content.get("provider", {})
-            publisher = provider.get("displayName", "") if isinstance(provider, dict) else str(provider)
+            publisher = (
+                provider.get("displayName", "") if isinstance(provider, dict) else str(provider)
+            )
 
             link = ""
             if "canonicalUrl" in content and isinstance(content["canonicalUrl"], dict):
@@ -401,15 +417,17 @@ def get_news(ticker: str, max_items: int = 5) -> list[NewsItem]:
             if not title:
                 continue
 
-            result.append(NewsItem(
-                title=title,
-                publisher=publisher,
-                link=link,
-                published=pub_time,
-                content_type=content.get("contentType", item.get("type", "")),
-                summary=content.get("summary", ""),
-                ticker=ticker,
-            ))
+            result.append(
+                NewsItem(
+                    title=title,
+                    publisher=publisher,
+                    link=link,
+                    published=pub_time,
+                    content_type=content.get("contentType", item.get("type", "")),
+                    summary=content.get("summary", ""),
+                    ticker=ticker,
+                )
+            )
         return result
     except Exception:
         logger.debug("Failed to get news for %s", sym, exc_info=True)
@@ -419,6 +437,7 @@ def get_news(ticker: str, max_items: int = 5) -> list[NewsItem]:
 # ---------------------------------------------------------------------------
 # Options helpers
 # ---------------------------------------------------------------------------
+
 
 def _moomoo_available(host: str = "127.0.0.1", port: int = 11111) -> bool:
     """Check if moomoo OpenD is reachable."""
@@ -668,6 +687,7 @@ def get_option_expiries(ticker: str) -> list[str]:
 # ---------------------------------------------------------------------------
 # Fundamentals
 # ---------------------------------------------------------------------------
+
 
 def get_earnings_date(ticker: str) -> tuple[datetime, str] | None:
     """Get next earnings date and timing (BMO/AMC/TBD)."""

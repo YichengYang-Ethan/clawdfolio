@@ -82,9 +82,7 @@ class TestAggregatePortfolios:
         broker = MagicMock()
         broker.name = "test"
         broker.is_connected.return_value = False
-        broker.get_portfolio.return_value = _make_portfolio(
-            [_pos("AAPL")], source="test"
-        )
+        broker.get_portfolio.return_value = _make_portfolio([_pos("AAPL")], source="test")
         result = aggregate_portfolios([broker])
         assert result.source == "test"
         assert len(result.positions) == 1
@@ -120,9 +118,7 @@ class TestAggregatePortfolios:
         good = MagicMock()
         good.name = "good"
         good.is_connected.return_value = False
-        good.get_portfolio.return_value = _make_portfolio(
-            [_pos("AAPL")], source="good"
-        )
+        good.get_portfolio.return_value = _make_portfolio([_pos("AAPL")], source="good")
 
         bad = MagicMock()
         bad.name = "bad"

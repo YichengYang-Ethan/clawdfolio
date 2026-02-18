@@ -20,9 +20,7 @@ TRADING_DAYS_YEAR = 252
 
 
 def calculate_volatility(
-    returns: pd.Series | np.ndarray,
-    window: int = 20,
-    annualize: bool = True
+    returns: pd.Series | np.ndarray, window: int = 20, annualize: bool = True
 ) -> float | None:
     """Calculate rolling volatility.
 
@@ -310,7 +308,9 @@ def analyze_risk(portfolio: Portfolio) -> RiskMetrics:
     if not available_tickers:
         return metrics
 
-    ticker_weights = {t: w for t, w in zip(tickers, weights, strict=False) if t in available_tickers}
+    ticker_weights = {
+        t: w for t, w in zip(tickers, weights, strict=False) if t in available_tickers
+    }
     w = np.array([ticker_weights[t] for t in available_tickers])
     if w.sum() == 0:
         return metrics

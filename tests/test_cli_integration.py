@@ -51,7 +51,11 @@ class TestCLIIntegration:
     def test_unknown_command(self):
         result = self._run("nonexistent")
         # argparse should show help/error
-        assert result.returncode != 0 or "usage" in result.stderr.lower() or "error" in result.stderr.lower()
+        assert (
+            result.returncode != 0
+            or "usage" in result.stderr.lower()
+            or "error" in result.stderr.lower()
+        )
 
     def test_help(self):
         result = self._run("--help")

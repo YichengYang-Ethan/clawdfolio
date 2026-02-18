@@ -40,7 +40,9 @@ def test_get_option_quote_prefers_moomoo(monkeypatch):
         source="moomoo",
     )
     monkeypatch.setattr(market_data, "_get_option_quote_moomoo", lambda *_args, **_kwargs: expected)
-    monkeypatch.setattr(market_data, "_import_yf", lambda: (_ for _ in ()).throw(RuntimeError("no yfinance")))
+    monkeypatch.setattr(
+        market_data, "_import_yf", lambda: (_ for _ in ()).throw(RuntimeError("no yfinance"))
+    )
 
     quote = market_data.get_option_quote("TQQQ", "2026-06-18", 60.0, "C")
 

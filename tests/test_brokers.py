@@ -1,6 +1,5 @@
 """Tests for broker integrations."""
 
-
 import pytest
 
 from clawdfolio.brokers.base import BaseBroker
@@ -19,6 +18,7 @@ class TestBrokerRegistry:
 
     def test_register_broker(self):
         """Test registering a new broker."""
+
         @register_broker("test_broker")
         class TestBroker(BaseBroker):
             def connect(self):
@@ -60,26 +60,54 @@ class TestBrokerRegistry:
 
     def test_register_duplicate_broker(self):
         """Test registering duplicate broker raises error."""
+
         @register_broker("duplicate_test")
         class TestBroker1(BaseBroker):
-            def connect(self): return True
-            def disconnect(self): pass
-            def is_connected(self): return True
-            def get_portfolio(self): pass
-            def get_positions(self): return []
-            def get_quote(self, s): pass
-            def get_quotes(self, s): return {}
+            def connect(self):
+                return True
+
+            def disconnect(self):
+                pass
+
+            def is_connected(self):
+                return True
+
+            def get_portfolio(self):
+                pass
+
+            def get_positions(self):
+                return []
+
+            def get_quote(self, s):
+                pass
+
+            def get_quotes(self, s):
+                return {}
 
         with pytest.raises(ValueError):
+
             @register_broker("duplicate_test")
             class TestBroker2(BaseBroker):
-                def connect(self): return True
-                def disconnect(self): pass
-                def is_connected(self): return True
-                def get_portfolio(self): pass
-                def get_positions(self): return []
-                def get_quote(self, s): pass
-                def get_quotes(self, s): return {}
+                def connect(self):
+                    return True
+
+                def disconnect(self):
+                    pass
+
+                def is_connected(self):
+                    return True
+
+                def get_portfolio(self):
+                    pass
+
+                def get_positions(self):
+                    return []
+
+                def get_quote(self, s):
+                    pass
+
+                def get_quotes(self, s):
+                    return {}
 
         unregister_broker("duplicate_test")
 
@@ -95,12 +123,16 @@ class TestFutuEmptyData:
 
         from clawdfolio.core.exceptions import BrokerError
 
-        with patch.dict("sys.modules", {
-            "futu": MagicMock(),
-            "futu.common": MagicMock(),
-            "futu.common.ft_logger": MagicMock(),
-        }):
+        with patch.dict(
+            "sys.modules",
+            {
+                "futu": MagicMock(),
+                "futu.common": MagicMock(),
+                "futu.common.ft_logger": MagicMock(),
+            },
+        ):
             from clawdfolio.brokers.futu import FutuBroker
+
             broker = FutuBroker()
             broker._connected = True
             broker._trade_ctx = MagicMock()
@@ -129,11 +161,15 @@ class TestLongportEmptyBalance:
 
         from clawdfolio.core.exceptions import BrokerError
 
-        with patch.dict("sys.modules", {
-            "longport": MagicMock(),
-            "longport.openapi": MagicMock(),
-        }):
+        with patch.dict(
+            "sys.modules",
+            {
+                "longport": MagicMock(),
+                "longport.openapi": MagicMock(),
+            },
+        ):
             from clawdfolio.brokers.longport import LongportBroker
+
             broker = LongportBroker()
             broker._connected = True
             broker._trade_ctx = MagicMock()

@@ -14,6 +14,7 @@ if TYPE_CHECKING:
 @dataclass
 class ConcentrationMetrics:
     """Concentration analysis results."""
+
     hhi: float  # Herfindahl-Hirschman Index
     top_5_weight: float
     top_10_weight: float
@@ -25,6 +26,7 @@ class ConcentrationMetrics:
 @dataclass
 class SectorExposure:
     """Sector exposure breakdown."""
+
     sector: str
     weight: float
     tickers: list[str] = field(default_factory=list)
@@ -47,7 +49,7 @@ def calculate_hhi(weights: list[float]) -> float:
     if not weights:
         return 0.0
 
-    return sum(w ** 2 for w in weights)
+    return sum(w**2 for w in weights)
 
 
 def calculate_concentration(portfolio: Portfolio) -> ConcentrationMetrics:
@@ -150,41 +152,49 @@ def analyze_concentration(
 
     # Single position concentration
     if metrics.max_position_weight > concentration_threshold:
-        alerts.append({
-            "type": "position_concentration",
-            "ticker": metrics.max_position_ticker,
-            "weight": metrics.max_position_weight,
-            "threshold": concentration_threshold,
-            "message": f"{metrics.max_position_ticker} accounts for {metrics.max_position_weight:.1%} of portfolio",
-        })
+        alerts.append(
+            {
+                "type": "position_concentration",
+                "ticker": metrics.max_position_ticker,
+                "weight": metrics.max_position_weight,
+                "threshold": concentration_threshold,
+                "message": f"{metrics.max_position_ticker} accounts for {metrics.max_position_weight:.1%} of portfolio",
+            }
+        )
 
     # High HHI
     if metrics.hhi > 0.25:
-        alerts.append({
-            "type": "high_hhi",
-            "value": metrics.hhi,
-            "message": f"Portfolio HHI of {metrics.hhi:.3f} indicates high concentration",
-        })
+        alerts.append(
+            {
+                "type": "high_hhi",
+                "value": metrics.hhi,
+                "message": f"Portfolio HHI of {metrics.hhi:.3f} indicates high concentration",
+            }
+        )
 
     # Sector concentration
     for sector in sectors:
         if sector.weight > sector_threshold:
-            alerts.append({
-                "type": "sector_concentration",
-                "sector": sector.sector,
-                "weight": sector.weight,
-                "tickers": sector.tickers,
-                "threshold": sector_threshold,
-                "message": f"{sector.sector} sector accounts for {sector.weight:.1%} of portfolio",
-            })
+            alerts.append(
+                {
+                    "type": "sector_concentration",
+                    "sector": sector.sector,
+                    "weight": sector.weight,
+                    "tickers": sector.tickers,
+                    "threshold": sector_threshold,
+                    "message": f"{sector.sector} sector accounts for {sector.weight:.1%} of portfolio",
+                }
+            )
 
     # Top 5 concentration
     if metrics.top_5_weight > 0.80:
-        alerts.append({
-            "type": "top_5_concentration",
-            "weight": metrics.top_5_weight,
-            "message": f"Top 5 holdings account for {metrics.top_5_weight:.1%} of portfolio",
-        })
+        alerts.append(
+            {
+                "type": "top_5_concentration",
+                "weight": metrics.top_5_weight,
+                "message": f"Top 5 holdings account for {metrics.top_5_weight:.1%} of portfolio",
+            }
+        )
 
     return {
         "metrics": metrics,

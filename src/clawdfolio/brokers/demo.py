@@ -109,9 +109,7 @@ class DemoBroker(BaseBroker):
                     avg_cost=avg_cost_dec,
                     market_value=market_value,
                     unrealized_pnl=unrealized_pnl,
-                    unrealized_pnl_pct=float(
-                        (current_price - avg_cost_dec) / avg_cost_dec
-                    ),
+                    unrealized_pnl_pct=float((current_price - avg_cost_dec) / avg_cost_dec),
                     day_pnl=day_pnl,
                     day_pnl_pct=float((current_price - prev_close) / prev_close),
                     current_price=current_price,

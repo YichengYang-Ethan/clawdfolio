@@ -137,9 +137,30 @@ class TestComputePerformance:
 
     def test_basic_performance(self):
         rows = [
-            SnapshotRow(date=date(2025, 1, 1), net_assets=10000, market_value=5000, cash=5000, day_pnl=0, day_pnl_pct=0.0),
-            SnapshotRow(date=date(2025, 1, 2), net_assets=10100, market_value=5100, cash=5000, day_pnl=100, day_pnl_pct=0.01),
-            SnapshotRow(date=date(2025, 1, 3), net_assets=10200, market_value=5200, cash=5000, day_pnl=100, day_pnl_pct=0.0099),
+            SnapshotRow(
+                date=date(2025, 1, 1),
+                net_assets=10000,
+                market_value=5000,
+                cash=5000,
+                day_pnl=0,
+                day_pnl_pct=0.0,
+            ),
+            SnapshotRow(
+                date=date(2025, 1, 2),
+                net_assets=10100,
+                market_value=5100,
+                cash=5000,
+                day_pnl=100,
+                day_pnl_pct=0.01,
+            ),
+            SnapshotRow(
+                date=date(2025, 1, 3),
+                net_assets=10200,
+                market_value=5200,
+                cash=5000,
+                day_pnl=100,
+                day_pnl_pct=0.0099,
+            ),
         ]
         result = compute_performance(rows)
         assert result["total_return_pct"] == 2.0
@@ -150,9 +171,30 @@ class TestComputePerformance:
 
     def test_drawdown(self):
         rows = [
-            SnapshotRow(date=date(2025, 1, 1), net_assets=10000, market_value=5000, cash=5000, day_pnl=0, day_pnl_pct=0),
-            SnapshotRow(date=date(2025, 1, 2), net_assets=9000, market_value=4000, cash=5000, day_pnl=-1000, day_pnl_pct=-0.1),
-            SnapshotRow(date=date(2025, 1, 3), net_assets=9500, market_value=4500, cash=5000, day_pnl=500, day_pnl_pct=0.0556),
+            SnapshotRow(
+                date=date(2025, 1, 1),
+                net_assets=10000,
+                market_value=5000,
+                cash=5000,
+                day_pnl=0,
+                day_pnl_pct=0,
+            ),
+            SnapshotRow(
+                date=date(2025, 1, 2),
+                net_assets=9000,
+                market_value=4000,
+                cash=5000,
+                day_pnl=-1000,
+                day_pnl_pct=-0.1,
+            ),
+            SnapshotRow(
+                date=date(2025, 1, 3),
+                net_assets=9500,
+                market_value=4500,
+                cash=5000,
+                day_pnl=500,
+                day_pnl_pct=0.0556,
+            ),
         ]
         result = compute_performance(rows)
         assert result["max_drawdown_pct"] == -10.0
@@ -160,9 +202,30 @@ class TestComputePerformance:
 
     def test_best_worst_day(self):
         rows = [
-            SnapshotRow(date=date(2025, 1, 1), net_assets=10000, market_value=5000, cash=5000, day_pnl=0, day_pnl_pct=0.0),
-            SnapshotRow(date=date(2025, 1, 2), net_assets=10500, market_value=5500, cash=5000, day_pnl=500, day_pnl_pct=0.05),
-            SnapshotRow(date=date(2025, 1, 3), net_assets=10200, market_value=5200, cash=5000, day_pnl=-300, day_pnl_pct=-0.03),
+            SnapshotRow(
+                date=date(2025, 1, 1),
+                net_assets=10000,
+                market_value=5000,
+                cash=5000,
+                day_pnl=0,
+                day_pnl_pct=0.0,
+            ),
+            SnapshotRow(
+                date=date(2025, 1, 2),
+                net_assets=10500,
+                market_value=5500,
+                cash=5000,
+                day_pnl=500,
+                day_pnl_pct=0.05,
+            ),
+            SnapshotRow(
+                date=date(2025, 1, 3),
+                net_assets=10200,
+                market_value=5200,
+                cash=5000,
+                day_pnl=-300,
+                day_pnl_pct=-0.03,
+            ),
         ]
         result = compute_performance(rows)
         assert result["best_day"]["date"] == "2025-01-02"

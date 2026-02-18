@@ -1,5 +1,6 @@
 """Portfolio analysis and risk metrics."""
 
+from .bubble import BubbleIndexResult, IndicatorResult, calculate_bubble_index
 from .concentration import (
     analyze_concentration,
     calculate_concentration,
@@ -57,4 +58,8 @@ __all__ = [
     "SCENARIOS",
     "StressResult",
     "stress_test_portfolio",
+    # Bubble
+    "BubbleIndexResult",
+    "IndicatorResult",
+    "calculate_bubble_index",
 ]

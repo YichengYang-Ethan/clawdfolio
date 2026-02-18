@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "clawdfolio"
-version = "2.3.0"
+version = "2.4.0"
 description = "Production-grade quantitative portfolio toolkit — multi-broker aggregation, institutional risk analytics, options lifecycle management, and 20+ automated finance workflows"
 readme = "README.md"
 license = "MIT"
@@ -61,9 +61,13 @@ longport = [
 futu = [
     "futu-api>=7.0.0",
 ]
+fred = [
+    "fredapi>=0.5",
+]
 all = [
     "longport>=1.0.0",
     "futu-api>=7.0.0",
+    "fredapi>=0.5",
 ]
 dev = [
     "pytest>=7.0.0",

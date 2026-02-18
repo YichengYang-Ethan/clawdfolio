@@ -33,6 +33,7 @@ if TYPE_CHECKING:
 
 class SignalType(str, Enum):
     """DCA signal types."""
+
     REGULAR = "regular"  # Scheduled DCA
     DIP = "dip"  # Buy the dip signal
     REBALANCE = "rebalance"  # Portfolio rebalance needed
@@ -41,6 +42,7 @@ class SignalType(str, Enum):
 @dataclass
 class DCASignal:
     """DCA buy signal."""
+
     ticker: str
     signal_type: SignalType
     current_price: float
@@ -83,14 +85,18 @@ class DCAStrategy:
                 deviation = target_weight - current_weight
                 amount = float(portfolio.net_assets) * deviation
 
-                signals.append(DCASignal(
-                    ticker=ticker,
-                    signal_type=SignalType.REBALANCE,
-                    current_price=float(pos.current_price) if pos and pos.current_price else 0.0,
-                    suggested_amount=amount,
-                    reason=f"Below target by {deviation*100:.1f}%",
-                    strength=min(deviation / self.rebalance_threshold, 1.0),
-                ))
+                signals.append(
+                    DCASignal(
+                        ticker=ticker,
+                        signal_type=SignalType.REBALANCE,
+                        current_price=float(pos.current_price)
+                        if pos and pos.current_price
+                        else 0.0,
+                        suggested_amount=amount,
+                        reason=f"Below target by {deviation * 100:.1f}%",
+                        strength=min(deviation / self.rebalance_threshold, 1.0),
+                    )
+                )
 
             # Check for dip signal
             dip_signal = self._check_dip(ticker)
@@ -120,7 +126,7 @@ class DCAStrategy:
                 signal_type=SignalType.DIP,
                 current_price=current_price,
                 suggested_amount=self.monthly_amount * self.dip_amount_multiplier,
-                reason=f"Down {drawdown*100:.1f}% from 3-month high (${recent_high:.2f})",
+                reason=f"Down {drawdown * 100:.1f}% from 3-month high (${recent_high:.2f})",
                 strength=min(drawdown / (self.dip_threshold * 2), 1.0),
             )
 

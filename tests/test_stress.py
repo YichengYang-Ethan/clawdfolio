@@ -59,12 +59,8 @@ class TestStressTestPortfolio:
         results = stress_test_portfolio(portfolio)
 
         covid = next(r for r in results if "COVID" in r.scenario)
-        tqqq_impact = next(
-            pi for pi in covid.position_impacts if pi["ticker"] == "TQQQ"
-        )
-        qqq_impact = next(
-            pi for pi in covid.position_impacts if pi["ticker"] == "QQQ"
-        )
+        tqqq_impact = next(pi for pi in covid.position_impacts if pi["ticker"] == "TQQQ")
+        qqq_impact = next(pi for pi in covid.position_impacts if pi["ticker"] == "QQQ")
         assert abs(float(tqqq_impact["impact"])) > abs(float(qqq_impact["impact"]))
 
     def test_empty_portfolio(self) -> None:

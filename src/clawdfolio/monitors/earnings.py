@@ -16,6 +16,7 @@ if TYPE_CHECKING:
 @dataclass
 class EarningsEvent:
     """Upcoming earnings event."""
+
     ticker: str
     date: date
     timing: str  # BMO, AMC, TBD
@@ -62,20 +63,22 @@ class EarningsMonitor:
             else:
                 title = f"{event.ticker} reports earnings in {event.days_until} days"
 
-            alerts.append(Alert(
-                type=AlertType.EARNINGS,
-                severity=severity,
-                title=title,
-                message=f"{event.ticker} ({event.weight*100:.1f}% of portfolio) "
-                        f"reports on {event.date.strftime('%b %d')} {event.timing}",
-                ticker=event.ticker,
-                metadata={
-                    "earnings_date": event.date.isoformat(),
-                    "timing": event.timing,
-                    "days_until": event.days_until,
-                    "weight": event.weight,
-                },
-            ))
+            alerts.append(
+                Alert(
+                    type=AlertType.EARNINGS,
+                    severity=severity,
+                    title=title,
+                    message=f"{event.ticker} ({event.weight * 100:.1f}% of portfolio) "
+                    f"reports on {event.date.strftime('%b %d')} {event.timing}",
+                    ticker=event.ticker,
+                    metadata={
+                        "earnings_date": event.date.isoformat(),
+                        "timing": event.timing,
+                        "days_until": event.days_until,
+                        "weight": event.weight,
+                    },
+                )
+            )
 
         return alerts
 
@@ -109,13 +112,15 @@ def get_upcoming_earnings(
 
         if today <= earnings_date <= cutoff:
             days_until = (earnings_date - today).days
-            events.append(EarningsEvent(
-                ticker=ticker,
-                date=earnings_date,
-                timing=timing,
-                days_until=days_until,
-                weight=pos.weight,
-            ))
+            events.append(
+                EarningsEvent(
+                    ticker=ticker,
+                    date=earnings_date,
+                    timing=timing,
+                    days_until=days_until,
+                    weight=pos.weight,
+                )
+            )
 
     # Sort by date, then by weight (for same day)
     events.sort(key=lambda e: (e.date, -e.weight))
@@ -149,8 +154,6 @@ def format_earnings_calendar(events: list[EarningsEvent]) -> str:
             lines.append(f"{date_str}")
 
         timing_emoji = {"BMO": "AM", "AMC": "PM", "TBD": "?"}.get(event.timing, "?")
-        lines.append(
-            f"  [{timing_emoji}] {event.ticker} ({event.weight*100:.1f}%)"
-        )
+        lines.append(f"  [{timing_emoji}] {event.ticker} ({event.weight * 100:.1f}%)")
 
     return "\n".join(lines)

@@ -13,6 +13,7 @@ from ..market.data import get_history
 @dataclass
 class RSIResult:
     """RSI calculation result."""
+
     ticker: str
     rsi: float
     is_overbought: bool
@@ -22,6 +23,7 @@ class RSIResult:
 @dataclass
 class BollingerBands:
     """Bollinger Bands result."""
+
     upper: float
     middle: float
     lower: float
@@ -75,7 +77,7 @@ def calculate_rsi_series(
     prices = prices.astype("float64")
     delta = prices.diff()
     gain = delta.where(delta > 0, 0.0)
-    loss = (-delta.where(delta < 0, 0.0))
+    loss = -delta.where(delta < 0, 0.0)
 
     # Wilder-style smoothing via EMA(alpha=1/period).
     avg_gain = gain.ewm(alpha=1 / period, min_periods=period).mean()
@@ -204,12 +206,14 @@ def detect_rsi_extremes(
             is_oversold = rsi <= oversold
 
             if is_overbought or is_oversold:
-                results.append(RSIResult(
-                    ticker=ticker,
-                    rsi=rsi,
-                    is_overbought=is_overbought,
-                    is_oversold=is_oversold,
-                ))
+                results.append(
+                    RSIResult(
+                        ticker=ticker,
+                        rsi=rsi,
+                        is_overbought=is_overbought,
+                        is_oversold=is_oversold,
+                    )
+                )
         except Exception:
             continue
 
@@ -262,9 +266,9 @@ def is_golden_cross(
     if len(prices_arr) < slow + 2:
         return False
 
-    fast_ma_prev = np.mean(prices_arr[-(fast + 1):-1])
+    fast_ma_prev = np.mean(prices_arr[-(fast + 1) : -1])
     fast_ma_curr = np.mean(prices_arr[-fast:])
-    slow_ma_prev = np.mean(prices_arr[-(slow + 1):-1])
+    slow_ma_prev = np.mean(prices_arr[-(slow + 1) : -1])
     slow_ma_curr = np.mean(prices_arr[-slow:])
 
     return bool(fast_ma_prev <= slow_ma_prev and fast_ma_curr > slow_ma_curr)
@@ -289,9 +293,9 @@ def is_death_cross(
     if len(prices_arr) < slow + 2:
         return False
 
-    fast_ma_prev = np.mean(prices_arr[-(fast + 1):-1])
+    fast_ma_prev = np.mean(prices_arr[-(fast + 1) : -1])
     fast_ma_curr = np.mean(prices_arr[-fast:])
-    slow_ma_prev = np.mean(prices_arr[-(slow + 1):-1])
+    slow_ma_prev = np.mean(prices_arr[-(slow + 1) : -1])
     slow_ma_curr = np.mean(prices_arr[-slow:])
 
     return bool(fast_ma_prev >= slow_ma_prev and fast_ma_curr < slow_ma_curr)

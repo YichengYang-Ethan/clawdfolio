@@ -116,12 +116,8 @@ class Config:
             rsi_high=alerts_data.get("rsi_high", 80),
             rsi_low=alerts_data.get("rsi_low", 20),
             rsi_step=alerts_data.get("rsi_step", 2),
-            single_stock_threshold_top10=alerts_data.get(
-                "single_stock_threshold_top10", 0.05
-            ),
-            single_stock_threshold_other=alerts_data.get(
-                "single_stock_threshold_other", 0.10
-            ),
+            single_stock_threshold_top10=alerts_data.get("single_stock_threshold_top10", 0.05),
+            single_stock_threshold_other=alerts_data.get("single_stock_threshold_other", 0.10),
             move_step=alerts_data.get("move_step", 0.01),
             concentration_threshold=alerts_data.get("concentration_threshold", 0.25),
         )
@@ -218,9 +214,7 @@ class Config:
             "currency": self.currency,
             "timezone": self.timezone,
             "cache_ttl": self.cache_ttl,
-            "leveraged_etfs": {
-                etf: list(info) for etf, info in self.leveraged_etfs.items()
-            },
+            "leveraged_etfs": {etf: list(info) for etf, info in self.leveraged_etfs.items()},
             "option_buyback": {
                 "enabled": self.option_buyback.enabled,
                 "symbol": self.option_buyback.symbol,
@@ -266,9 +260,7 @@ def load_config(path: str | Path | None = None) -> Config:
     if path:
         search_paths.append(Path(path))
 
-    env_path = os.environ.get("CLAWDFOLIO_CONFIG") or os.environ.get(
-        "PORTFOLIO_MONITOR_CONFIG"
-    )
+    env_path = os.environ.get("CLAWDFOLIO_CONFIG") or os.environ.get("PORTFOLIO_MONITOR_CONFIG")
     if env_path:
         search_paths.append(Path(env_path))
 

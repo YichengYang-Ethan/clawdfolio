@@ -21,6 +21,7 @@ DEFAULT_STATE_PATH = "~/.cache/clawdfolio/price_alert_state.json"
 @dataclass
 class PriceAlert:
     """Price alert result."""
+
     ticker: str
     price_change_pct: float
     weight: float
@@ -185,16 +186,18 @@ class PriceMonitor:
                     _u, lev, label = self.leveraged_etfs[pos.symbol.ticker]
                     etf_note = f" ({lev}x {label})"
 
-                alerts.append(Alert(
-                    type=AlertType.PRICE_MOVE,
-                    severity=severity,
-                    title=f"{pos.symbol.ticker}{etf_note} {direction} {abs(day_pct)*100:.1f}%",
-                    message=self._format_price_message(pos, i),
-                    ticker=pos.symbol.ticker,
-                    value=day_pct,
-                    threshold=threshold,
-                    metadata={"rank": i, "weight": pos.weight},
-                ))
+                alerts.append(
+                    Alert(
+                        type=AlertType.PRICE_MOVE,
+                        severity=severity,
+                        title=f"{pos.symbol.ticker}{etf_note} {direction} {abs(day_pct) * 100:.1f}%",
+                        message=self._format_price_message(pos, i),
+                        ticker=pos.symbol.ticker,
+                        value=day_pct,
+                        threshold=threshold,
+                        metadata={"rank": i, "weight": pos.weight},
+                    )
+                )
             else:
                 # Below threshold — clear any saved state so it can re-fire
                 key = f"price:{pos.symbol.ticker}"
@@ -209,14 +212,16 @@ class PriceMonitor:
                 if abs(pnl_val) >= self.pnl_trigger * 2:
                     severity = AlertSeverity.CRITICAL
 
-                alerts.append(Alert(
-                    type=AlertType.PNL_THRESHOLD,
-                    severity=severity,
-                    title=f"Portfolio {'gained' if is_gain else 'lost'} ${abs(portfolio.day_pnl):,.0f} today",
-                    message=self._format_pnl_message(portfolio, is_gain),
-                    value=pnl_val,
-                    threshold=self.pnl_trigger,
-                ))
+                alerts.append(
+                    Alert(
+                        type=AlertType.PNL_THRESHOLD,
+                        severity=severity,
+                        title=f"Portfolio {'gained' if is_gain else 'lost'} ${abs(portfolio.day_pnl):,.0f} today",
+                        message=self._format_pnl_message(portfolio, is_gain),
+                        value=pnl_val,
+                        threshold=self.pnl_trigger,
+                    )
+                )
         else:
             # Below trigger — clear saved state
             self._state.pop("pnl:portfolio", None)
@@ -228,19 +233,17 @@ class PriceMonitor:
         """Format price alert message."""
         direction = "up" if pos.day_pnl_pct > 0 else "down"
         return (
-            f"{pos.symbol.ticker} (rank #{rank}, {pos.weight*100:.1f}% of portfolio) "
-            f"is {direction} {abs(pos.day_pnl_pct)*100:.1f}% today. "
+            f"{pos.symbol.ticker} (rank #{rank}, {pos.weight * 100:.1f}% of portfolio) "
+            f"is {direction} {abs(pos.day_pnl_pct) * 100:.1f}% today. "
             f"Day P&L: ${float(pos.day_pnl):,.2f}"
         )
 
     def _format_pnl_message(self, portfolio: Portfolio, is_gain: bool) -> str:
         """Format P&L alert message."""
         # Get top contributors
-        sorted_pos = sorted(
-            portfolio.positions,
-            key=lambda p: abs(float(p.day_pnl)),
-            reverse=True
-        )[:3]
+        sorted_pos = sorted(portfolio.positions, key=lambda p: abs(float(p.day_pnl)), reverse=True)[
+            :3
+        ]
 
         contributors = []
         for p in sorted_pos:
@@ -248,8 +251,8 @@ class PriceMonitor:
             contributors.append(f"{p.symbol.ticker}: {direction}${float(p.day_pnl):,.0f}")
 
         return (
-            f"Total day P&L: {'+'if is_gain else '-'}${abs(portfolio.day_pnl):,.2f} "
-            f"({portfolio.day_pnl_pct*100:+.2f}%)\n"
+            f"Total day P&L: {'+' if is_gain else '-'}${abs(portfolio.day_pnl):,.2f} "
+            f"({portfolio.day_pnl_pct * 100:+.2f}%)\n"
             f"Top contributors: {', '.join(contributors)}"
         )
 
@@ -277,14 +280,16 @@ def detect_price_alerts(
         day_pct = pos.day_pnl_pct
 
         if abs(day_pct) >= threshold:
-            alerts.append(PriceAlert(
-                ticker=pos.symbol.ticker,
-                price_change_pct=day_pct,
-                weight=pos.weight,
-                is_gain=day_pct > 0,
-                threshold=threshold,
-                rank=i,
-            ))
+            alerts.append(
+                PriceAlert(
+                    ticker=pos.symbol.ticker,
+                    price_change_pct=day_pct,
+                    weight=pos.weight,
+                    is_gain=day_pct > 0,
+                    threshold=threshold,
+                    rank=i,
+                )
+            )
 
     return alerts
 

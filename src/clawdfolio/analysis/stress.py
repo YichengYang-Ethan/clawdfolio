@@ -130,19 +130,23 @@ def stress_test_portfolio(
             position_impact = weight * leverage * bench_move
 
             total_impact += position_impact
-            position_impacts.append({
-                "ticker": ticker,
-                "weight": weight,
-                "leverage": leverage,
-                "benchmark": benchmark,
-                "bench_move": bench_move,
-                "impact": position_impact,
-            })
+            position_impacts.append(
+                {
+                    "ticker": ticker,
+                    "weight": weight,
+                    "leverage": leverage,
+                    "benchmark": benchmark,
+                    "bench_move": bench_move,
+                    "impact": position_impact,
+                }
+            )
 
-        results.append(StressResult(
-            scenario=scenario.name,
-            portfolio_impact=total_impact,
-            position_impacts=position_impacts,
-        ))
+        results.append(
+            StressResult(
+                scenario=scenario.name,
+                portfolio_impact=total_impact,
+                position_impacts=position_impacts,
+            )
+        )
 
     return results

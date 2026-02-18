@@ -15,6 +15,7 @@ def send_notification(method: str, config: dict[str, Any], message: str) -> None
     """
     if method == "telegram":
         from .telegram import send_telegram
+
         send_telegram(
             bot_token=config["bot_token"],
             chat_id=config["chat_id"],
@@ -22,6 +23,7 @@ def send_notification(method: str, config: dict[str, Any], message: str) -> None
         )
     elif method == "email":
         from .email import send_email
+
         send_email(
             smtp_host=config["smtp_host"],
             smtp_port=int(config.get("smtp_port", 587)),

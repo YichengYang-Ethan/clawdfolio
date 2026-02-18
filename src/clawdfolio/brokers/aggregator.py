@@ -128,19 +128,21 @@ def _merge_positions(positions: list[Position]) -> list[Position]:
             if start_val > 0:
                 day_pnl_pct = float(total_day_pnl / start_val)
 
-        merged.append(Position(
-            symbol=base.symbol,
-            quantity=total_qty,
-            avg_cost=avg_cost,
-            market_value=total_mv,
-            unrealized_pnl=total_unrealized,
-            unrealized_pnl_pct=unrealized_pct,
-            day_pnl=total_day_pnl,
-            day_pnl_pct=day_pnl_pct,
-            current_price=current_price,
-            prev_close=prev_close,
-            name=base.name,
-            source="+".join(p.source for p in group),
-        ))
+        merged.append(
+            Position(
+                symbol=base.symbol,
+                quantity=total_qty,
+                avg_cost=avg_cost,
+                market_value=total_mv,
+                unrealized_pnl=total_unrealized,
+                unrealized_pnl_pct=unrealized_pct,
+                day_pnl=total_day_pnl,
+                day_pnl_pct=day_pnl_pct,
+                current_price=current_price,
+                prev_close=prev_close,
+                name=base.name,
+                source="+".join(p.source for p in group),
+            )
+        )
 
     return merged

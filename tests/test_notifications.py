@@ -19,9 +19,7 @@ class TestSendNotificationDispatch:
     def test_dispatch_telegram(self, mock_send):
         config = {"bot_token": "123:ABC", "chat_id": "456"}
         send_notification("telegram", config, "hello")
-        mock_send.assert_called_once_with(
-            bot_token="123:ABC", chat_id="456", message="hello"
-        )
+        mock_send.assert_called_once_with(bot_token="123:ABC", chat_id="456", message="hello")
 
     @patch("clawdfolio.notifications.email.send_email")
     def test_dispatch_email(self, mock_send):

@@ -50,14 +50,16 @@ def append_snapshot(portfolio: Portfolio, path: str | None = None) -> tuple[bool
         writer = csv.writer(f)
         if write_header:
             writer.writerow(COLUMNS)
-        writer.writerow([
-            today,
-            f"{float(portfolio.net_assets):.2f}",
-            f"{float(portfolio.market_value):.2f}",
-            f"{float(portfolio.cash):.2f}",
-            f"{float(portfolio.day_pnl):.2f}",
-            f"{portfolio.day_pnl_pct:.6f}",
-        ])
+        writer.writerow(
+            [
+                today,
+                f"{float(portfolio.net_assets):.2f}",
+                f"{float(portfolio.market_value):.2f}",
+                f"{float(portfolio.cash):.2f}",
+                f"{float(portfolio.day_pnl):.2f}",
+                f"{portfolio.day_pnl_pct:.6f}",
+            ]
+        )
 
     return True, f"Snapshot saved for {today} -> {fp}"
 
@@ -73,22 +75,22 @@ def read_snapshots(path: str | None = None) -> list[SnapshotRow]:
         reader = csv.DictReader(f)
         for r in reader:
             try:
-                rows.append(SnapshotRow(
-                    date=datetime.strptime(r["date"], "%Y-%m-%d").date(),
-                    net_assets=float(r["net_assets"]),
-                    market_value=float(r["market_value"]),
-                    cash=float(r["cash"]),
-                    day_pnl=float(r["day_pnl"]),
-                    day_pnl_pct=float(r["day_pnl_pct"]),
-                ))
+                rows.append(
+                    SnapshotRow(
+                        date=datetime.strptime(r["date"], "%Y-%m-%d").date(),
+                        net_assets=float(r["net_assets"]),
+                        market_value=float(r["market_value"]),
+                        cash=float(r["cash"]),
+                        day_pnl=float(r["day_pnl"]),
+                        day_pnl_pct=float(r["day_pnl_pct"]),
+                    )
+                )
             except (KeyError, ValueError):
                 continue
     return rows
 
 
-def filter_by_period(
-    rows: list[SnapshotRow], period: str = "all"
-) -> list[SnapshotRow]:
+def filter_by_period(rows: list[SnapshotRow], period: str = "all") -> list[SnapshotRow]:
     """Filter snapshots by period string (1m, 3m, 6m, 1y, all)."""
     if not rows or period == "all":
         return rows
@@ -140,12 +142,16 @@ def compute_performance(rows: list[SnapshotRow]) -> dict:
         "end_nav": end_nav,
         "total_return_pct": round(total_return_pct, 2),
         "max_drawdown_pct": round(max_dd * 100, 2),
-        "best_day": {"date": best_day.date.isoformat(), "pnl_pct": round(best_day.day_pnl_pct * 100, 2)},
-        "worst_day": {"date": worst_day.date.isoformat(), "pnl_pct": round(worst_day.day_pnl_pct * 100, 2)},
+        "best_day": {
+            "date": best_day.date.isoformat(),
+            "pnl_pct": round(best_day.day_pnl_pct * 100, 2),
+        },
+        "worst_day": {
+            "date": worst_day.date.isoformat(),
+            "pnl_pct": round(worst_day.day_pnl_pct * 100, 2),
+        },
         "data_points": len(sorted_rows),
-        "time_series": [
-            {"date": r.date.isoformat(), "nav": r.net_assets} for r in sorted_rows
-        ],
+        "time_series": [{"date": r.date.isoformat(), "nav": r.net_assets} for r in sorted_rows],
     }
 
 

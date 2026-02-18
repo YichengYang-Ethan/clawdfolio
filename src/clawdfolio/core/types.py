@@ -159,9 +159,7 @@ class Position:
 
         if self.avg_cost and self.avg_cost > 0:
             self.unrealized_pnl = self.quantity * (quote.price - self.avg_cost)
-            self.unrealized_pnl_pct = float(
-                (quote.price - self.avg_cost) / self.avg_cost
-            )
+            self.unrealized_pnl_pct = float((quote.price - self.avg_cost) / self.avg_cost)
 
 
 @dataclass

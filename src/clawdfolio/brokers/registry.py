@@ -38,9 +38,7 @@ def register_broker(name: str) -> Callable[[type[BaseBroker]], type[BaseBroker]]
     return decorator
 
 
-def get_broker(
-    name: str, config: BrokerConfig | None = None
-) -> BaseBroker:
+def get_broker(name: str, config: BrokerConfig | None = None) -> BaseBroker:
     """Get a broker instance by name.
 
     Args:

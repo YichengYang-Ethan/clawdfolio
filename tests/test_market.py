@@ -100,7 +100,7 @@ class TestTradingCalendar:
     def test_trading_days_between(self):
         """Test counting trading days between dates."""
         start = date(2024, 1, 8)  # Monday
-        end = date(2024, 1, 12)   # Friday
+        end = date(2024, 1, 12)  # Friday
         days = trading_days_between(start, end)
 
         # Should be 5 weekdays
@@ -110,8 +110,8 @@ class TestTradingCalendar:
 
     def test_trading_days_between_with_weekend(self):
         """Test trading days excludes weekend."""
-        start = date(2024, 1, 5)   # Friday
-        end = date(2024, 1, 8)     # Monday
+        start = date(2024, 1, 5)  # Friday
+        end = date(2024, 1, 8)  # Monday
         days = trading_days_between(start, end)
 
         # Should be 2: Friday and Monday

@@ -106,6 +106,7 @@ class TestGetUpcomingEarnings:
     @patch("clawdfolio.monitors.earnings.get_earnings_date")
     def test_sorted_by_date(self, mock_earnings):
         """Events should be sorted by date."""
+
         def side_effect(ticker):
             if ticker == "AAPL":
                 return (datetime.now() + timedelta(days=7), "BMO")

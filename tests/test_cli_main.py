@@ -270,10 +270,12 @@ class TestCLIInit:
 
     def test_create_parser_from_init(self):
         from clawdfolio.cli import create_parser
+
         parser = create_parser()
         assert parser is not None
 
     def test_create_parser_returns_parser(self):
         from clawdfolio.cli import create_parser as cp
+
         parser = cp()
         assert parser.prog == "clawdfolio"

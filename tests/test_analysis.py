@@ -127,9 +127,36 @@ class TestTechnicalIndicators:
         """RSI series should follow Wilder EMA smoothing, not simple rolling averages."""
         prices = pd.Series(
             [
-                100, 101, 103, 102, 104, 107, 106, 105, 104, 103,
-                102, 101, 100, 99, 98, 99, 100, 101, 102, 103,
-                104, 105, 103, 101, 99, 100, 102, 104, 103, 105,
+                100,
+                101,
+                103,
+                102,
+                104,
+                107,
+                106,
+                105,
+                104,
+                103,
+                102,
+                101,
+                100,
+                99,
+                98,
+                99,
+                100,
+                101,
+                102,
+                103,
+                104,
+                105,
+                103,
+                101,
+                99,
+                100,
+                102,
+                104,
+                103,
+                105,
             ],
             dtype="float64",
         )
@@ -139,7 +166,7 @@ class TestTechnicalIndicators:
 
         delta = prices.diff()
         gain = delta.where(delta > 0, 0.0)
-        loss = (-delta.where(delta < 0, 0.0))
+        loss = -delta.where(delta < 0, 0.0)
         expected = 100 - (
             100
             / (
@@ -194,7 +221,6 @@ class TestTechnicalIndicators:
         assert bands.upper > bands.middle > bands.lower
         assert bands.bandwidth > 0
         assert 0 <= bands.percent_b <= 1 or bands.percent_b < 0 or bands.percent_b > 1
-
 
     def test_calculate_beta_insufficient_data(self):
         """Test beta with insufficient data returns None."""
