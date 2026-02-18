@@ -1140,8 +1140,8 @@ def cmd_stress(args: Namespace) -> int:
             print(f"\nWorst scenario: {worst.scenario}")
             sorted_impacts = sorted(
                 worst.position_impacts,
-                key=lambda x: abs(x["impact"]),
-                reverse=True,  # type: ignore[arg-type]
+                key=lambda x: abs(float(x["impact"])),
+                reverse=True,
             )
             print("  Top impacted positions:")
             for pi in sorted_impacts[:5]:
