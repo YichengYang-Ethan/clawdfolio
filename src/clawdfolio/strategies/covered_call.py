@@ -20,7 +20,7 @@ from __future__ import annotations
 import logging
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import TYPE_CHECKING, Callable, Optional
+from typing import TYPE_CHECKING
 
 from ..analysis.bubble import BubbleRiskResult, fetch_bubble_risk
 
@@ -116,7 +116,7 @@ class CoveredCallStrategy:
 
     def check_signals(
         self,
-        portfolio: Optional[Portfolio] = None,
+        portfolio: Portfolio | None = None,
     ) -> list[CoveredCallSignal]:
         """Check for covered call signals.
 
@@ -140,7 +140,7 @@ class CoveredCallStrategy:
         self,
         ticker: str,
         risk: BubbleRiskResult,
-        portfolio: Optional[Portfolio],
+        portfolio: Portfolio | None,
     ) -> CoveredCallSignal:
         """Generate signal for a single ticker."""
         score = risk.drawdown_risk_score

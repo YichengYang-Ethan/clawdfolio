@@ -2,12 +2,14 @@
 
 from __future__ import annotations
 
+import json
 import logging
 import os
 import warnings
 from dataclasses import dataclass, field
 from datetime import datetime
 
+import numpy as np
 import pandas as pd
 import yfinance as yf
 
@@ -380,9 +382,6 @@ def calculate_bubble_index(
 # ═══════════════════════════════════════════════════════════════════
 # Drawdown Risk Score — integrated from Market-Bubble-Index-Dashboard
 # ═══════════════════════════════════════════════════════════════════
-
-import json
-import numpy as np
 
 # Default Dashboard API endpoint (GitHub Pages hosted JSON)
 _DEFAULT_BUBBLE_HISTORY_URL = (
