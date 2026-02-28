@@ -20,7 +20,7 @@ from __future__ import annotations
 import logging
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import TYPE_CHECKING, Callable, Optional
+from typing import TYPE_CHECKING
 
 from ..analysis.bubble import BubbleRiskResult, fetch_bubble_risk
 
@@ -34,13 +34,15 @@ logger = logging.getLogger(__name__)
 # Signal types
 # ═══════════════════════════════════════════════════════════════════
 
+
 class CCAction(str, Enum):
     """Covered call action types."""
-    SELL = "sell_call"        # Open new CC position
-    ROLL = "roll"             # Roll existing CC to next month
-    HOLD = "hold"             # Keep current CC, do nothing
-    PAUSE = "pause"           # Risk too low — don't sell CC
-    CLOSE = "close"           # Buy back CC (risk dropping, want full upside)
+
+    SELL = "sell_call"  # Open new CC position
+    ROLL = "roll"  # Roll existing CC to next month
+    HOLD = "hold"  # Keep current CC, do nothing
+    PAUSE = "pause"  # Risk too low — don't sell CC
+    CLOSE = "close"  # Buy back CC (risk dropping, want full upside)
 
 
 @dataclass
@@ -54,17 +56,18 @@ class CoveredCallSignal:
     reason: str
     bubble_risk_score: float
     regime: str
-    strength: float            # 0-1, higher = stronger conviction
+    strength: float  # 0-1, higher = stronger conviction
 
     # Management parameters
-    profit_target_pct: float = 0.50   # buy back at 50% profit
-    stop_loss_pct: float = 2.00       # buy back at 200% loss
-    roll_dte: int = 14                # roll when ≤14 DTE remaining
+    profit_target_pct: float = 0.50  # buy back at 50% profit
+    stop_loss_pct: float = 2.00  # buy back at 200% loss
+    roll_dte: int = 14  # roll when ≤14 DTE remaining
 
 
 # ═══════════════════════════════════════════════════════════════════
 # Strategy
 # ═══════════════════════════════════════════════════════════════════
+
 
 @dataclass
 class CoveredCallStrategy:
@@ -93,18 +96,18 @@ class CoveredCallStrategy:
     risk_threshold: float = 66.0
 
     # Delta targets (from playbook + backtest optimisation)
-    delta_normal: float = 0.25         # default CC delta (backtested optimal)
-    delta_elevated: float = 0.30       # higher risk → more premium / protection
-    elevated_threshold: float = 75.0   # risk score that triggers elevated delta
+    delta_normal: float = 0.25  # default CC delta (backtested optimal)
+    delta_elevated: float = 0.30  # higher risk → more premium / protection
+    elevated_threshold: float = 75.0  # risk score that triggers elevated delta
 
     # Options parameters
-    target_dte: int = 35               # target days to expiry
-    profit_target_pct: float = 0.50    # buy back at 50% profit
-    stop_loss_pct: float = 2.00        # buy back at 200% loss
-    roll_dte: int = 14                 # roll when ≤14 DTE
+    target_dte: int = 35  # target days to expiry
+    profit_target_pct: float = 0.50  # buy back at 50% profit
+    stop_loss_pct: float = 2.00  # buy back at 200% loss
+    roll_dte: int = 14  # roll when ≤14 DTE
 
     # Risk source
-    risk_source: str = "api"           # "api" (Dashboard) or "live" (yfinance)
+    risk_source: str = "api"  # "api" (Dashboard) or "live" (yfinance)
 
     def _get_risk(self) -> BubbleRiskResult:
         """Fetch current bubble risk score."""
@@ -112,11 +115,12 @@ class CoveredCallStrategy:
             return fetch_bubble_risk()
         else:
             from ..analysis.bubble import calculate_bubble_risk
+
             return calculate_bubble_risk()
 
     def check_signals(
         self,
-        portfolio: Optional[Portfolio] = None,
+        portfolio: Portfolio | None = None,
     ) -> list[CoveredCallSignal]:
         """Check for covered call signals.
 
@@ -140,7 +144,7 @@ class CoveredCallStrategy:
         self,
         ticker: str,
         risk: BubbleRiskResult,
-        portfolio: Optional[Portfolio],
+        portfolio: Portfolio | None,
     ) -> CoveredCallSignal:
         """Generate signal for a single ticker."""
         score = risk.drawdown_risk_score
@@ -214,9 +218,11 @@ class CoveredCallStrategy:
 
             if sig.action == CCAction.SELL:
                 lines.append(f"    Target:     δ={sig.target_delta}, DTE={sig.target_dte}")
-                lines.append(f"    Mgmt:       PT={sig.profit_target_pct*100:.0f}%, "
-                             f"SL={sig.stop_loss_pct*100:.0f}%, "
-                             f"Roll@{sig.roll_dte}DTE")
+                lines.append(
+                    f"    Mgmt:       PT={sig.profit_target_pct * 100:.0f}%, "
+                    f"SL={sig.stop_loss_pct * 100:.0f}%, "
+                    f"Roll@{sig.roll_dte}DTE"
+                )
                 lines.append(f"    Strength:   {sig.strength:.0%}")
             lines.append("")
 
@@ -226,6 +232,7 @@ class CoveredCallStrategy:
 # ═══════════════════════════════════════════════════════════════════
 # Convenience functions
 # ═══════════════════════════════════════════════════════════════════
+
 
 def check_cc_signals(
     tickers: list[str] | None = None,
@@ -263,7 +270,8 @@ def get_cc_recommendation(ticker: str = "TQQQ") -> str:
 
     sig = signals[0]
     if sig.action == CCAction.SELL:
-        return (f"{ticker}: SELL CC — Risk={sig.bubble_risk_score:.0f}, "
-                f"δ={sig.target_delta}, DTE={sig.target_dte}")
-    return (f"{ticker}: HOLD — Risk={sig.bubble_risk_score:.0f}, "
-            f"below threshold ({sig.regime})")
+        return (
+            f"{ticker}: SELL CC — Risk={sig.bubble_risk_score:.0f}, "
+            f"δ={sig.target_delta}, DTE={sig.target_dte}"
+        )
+    return f"{ticker}: HOLD — Risk={sig.bubble_risk_score:.0f}, below threshold ({sig.regime})"

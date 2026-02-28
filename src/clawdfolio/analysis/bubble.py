@@ -2,12 +2,14 @@
 
 from __future__ import annotations
 
+import json
 import logging
 import os
 import warnings
 from dataclasses import dataclass, field
 from datetime import datetime
 
+import numpy as np
 import pandas as pd
 import yfinance as yf
 
@@ -381,13 +383,9 @@ def calculate_bubble_index(
 # Drawdown Risk Score — integrated from Market-Bubble-Index-Dashboard
 # ═══════════════════════════════════════════════════════════════════
 
-import json
-import numpy as np
-
 # Default Dashboard API endpoint (GitHub Pages hosted JSON)
 _DEFAULT_BUBBLE_HISTORY_URL = (
-    "https://yichengyangportfolio.com/Market-Bubble-Index-Dashboard"
-    "/data/bubble_history.json"
+    "https://yichengyangportfolio.com/Market-Bubble-Index-Dashboard/data/bubble_history.json"
 )
 
 
@@ -400,10 +398,10 @@ class BubbleRiskResult:
     over 2014-2026).
     """
 
-    drawdown_risk_score: float          # 0-100, primary signal
-    composite_score: float              # 0-100, multi-indicator composite
-    regime: str                         # "low_risk" | "moderate" | "elevated" | "high_risk"
-    date: str                           # YYYY-MM-DD of the reading
+    drawdown_risk_score: float  # 0-100, primary signal
+    composite_score: float  # 0-100, multi-indicator composite
+    regime: str  # "low_risk" | "moderate" | "elevated" | "high_risk"
+    date: str  # YYYY-MM-DD of the reading
     components: dict[str, float] = field(default_factory=dict)
     timestamp: datetime = field(default_factory=datetime.now)
 
