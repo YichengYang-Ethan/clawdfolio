@@ -128,8 +128,12 @@ class TestAlert:
 class TestConfig:
     """Tests for Config class."""
 
-    def test_default_config(self):
+    def test_default_config(self, tmp_path, monkeypatch):
         """Test default configuration."""
+        monkeypatch.setenv("HOME", str(tmp_path))
+        monkeypatch.delenv("CLAWDFOLIO_CONFIG", raising=False)
+        monkeypatch.delenv("PORTFOLIO_MONITOR_CONFIG", raising=False)
+        monkeypatch.chdir(tmp_path)
         config = load_config()
         assert config.currency == "USD"
         assert "demo" in config.brokers

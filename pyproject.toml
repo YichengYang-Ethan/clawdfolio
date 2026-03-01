@@ -64,10 +64,16 @@ futu = [
 fred = [
     "fredapi>=0.5",
 ]
+dashboard = [
+    "streamlit>=1.28.0",
+    "plotly>=5.0.0",
+]
 all = [
     "longport>=1.0.0",
     "futu-api>=7.0.0",
     "fredapi>=0.5",
+    "streamlit>=1.28.0",
+    "plotly>=5.0.0",
 ]
 dev = [
     "pytest>=7.0.0",

@@ -4,6 +4,14 @@ from __future__ import annotations
 
 from typing import Any
 
+from .formatters import format_alert_telegram, format_alerts_telegram
+
+__all__ = [
+    "send_notification",
+    "format_alert_telegram",
+    "format_alerts_telegram",
+]
+
 
 def send_notification(method: str, config: dict[str, Any], message: str) -> None:
     """Dispatch a notification via the requested method.

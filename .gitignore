@@ -37,6 +37,7 @@ ENV/
 # Testing
 .pytest_cache/
 .coverage
+coverage.xml
 htmlcov/
 .tox/
 .nox/
@@ -54,6 +55,7 @@ credentials.json
 
 # OS
 .DS_Store
+.Rhistory
 Thumbs.db
 
 # Logs

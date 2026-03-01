@@ -3,6 +3,7 @@
 __version__ = "2.5.0"
 __author__ = "YICHENG YANG"
 
+from .brokers import get_broker
 from .core.config import Config, load_config
 from .core.exceptions import (
     BrokerError,
@@ -23,6 +24,8 @@ __all__ = [
     # Config
     "Config",
     "load_config",
+    # Brokers
+    "get_broker",
     # Exceptions
     "PortfolioMonitorError",
     "BrokerError",
