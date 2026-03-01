@@ -16,6 +16,8 @@ except ImportError:
 
 if TYPE_CHECKING:
     from ..core.types import Alert, Portfolio, RiskMetrics
+    from ..storage.models import PerformanceMetrics, PortfolioSnapshot
+    from ..strategies.rebalance import RebalanceAction
 
 
 def _format_money(value: float, decimals: int = 2) -> str:
@@ -160,6 +162,94 @@ class ConsoleFormatter:
                 corr_table.add_row(f"{t1} - {t2}", f"{corr:.2f}")
 
             self.console.print(corr_table)
+
+    def print_history(self, snapshots: list[PortfolioSnapshot]) -> None:
+        """Print portfolio snapshot history."""
+        if not snapshots:
+            self.console.print("[yellow]No snapshot history available.[/yellow]")
+            return
+
+        table = Table(title="Portfolio History")
+        table.add_column("Timestamp", style="cyan")
+        table.add_column("Net Assets", justify="right")
+        table.add_column("Cash", justify="right")
+        table.add_column("Market Value", justify="right")
+        table.add_column("Day P&L", justify="right")
+
+        for snap in snapshots:
+            day_pnl = snap.day_pnl or 0
+            color = _get_color(day_pnl)
+            table.add_row(
+                snap.timestamp.strftime("%Y-%m-%d %H:%M"),
+                f"${snap.net_assets:,.2f}",
+                f"${snap.cash:,.2f}",
+                f"${snap.market_value:,.2f}",
+                Text(_format_money(day_pnl, 0), style=color),
+            )
+
+        self.console.print(table)
+
+    def print_performance(self, metrics: PerformanceMetrics) -> None:
+        """Print performance metrics."""
+        text = Text()
+        period = "N/A"
+        if metrics.first_date and metrics.last_date:
+            period = f"{metrics.first_date:%Y-%m-%d} → {metrics.last_date:%Y-%m-%d}"
+        text.append(f"Period: {period}\n")
+        text.append(f"Snapshots: {metrics.total_snapshots}\n")
+        text.append(f"Starting NAV: ${metrics.starting_nav:,.2f}\n")
+        text.append(f"Ending NAV: ${metrics.ending_nav:,.2f}\n")
+
+        ret_color = _get_color(metrics.total_return_pct)
+        text.append("Return: ")
+        text.append(f"{metrics.total_return_pct * 100:+.2f}%\n", style=ret_color)
+
+        text.append(f"Max Drawdown: {metrics.max_drawdown_pct * 100:.2f}%\n", style="red")
+        text.append(f"Avg Daily P&L: ${metrics.avg_daily_pnl:,.2f}\n")
+        text.append(f"Best Day: ${metrics.best_day_pnl:,.2f}\n", style="green")
+        text.append(f"Worst Day: ${metrics.worst_day_pnl:,.2f}\n", style="red")
+
+        total_days = metrics.positive_days + metrics.negative_days
+        win_rate = (metrics.positive_days / total_days * 100) if total_days else 0
+        text.append(f"Win Rate: {win_rate:.0f}% ({metrics.positive_days}W / {metrics.negative_days}L)")
+
+        self.console.print(Panel(text, title="Performance Metrics", border_style="blue"))
+
+    def print_rebalance(self, actions: list[RebalanceAction]) -> None:
+        """Print rebalance actions."""
+        if not actions:
+            self.console.print("[green]Portfolio is on target. No rebalancing needed.[/green]")
+            return
+
+        table = Table(title="Rebalance Actions")
+        table.add_column("Ticker", style="cyan", no_wrap=True)
+        table.add_column("Current %", justify="right")
+        table.add_column("Target %", justify="right")
+        table.add_column("Deviation", justify="right")
+        table.add_column("Status", justify="center")
+        table.add_column("$ Amount", justify="right")
+        table.add_column("Shares", justify="right")
+
+        for a in actions:
+            dev_color = _get_color(-abs(a.deviation)) if a.status != "ON_TARGET" else "white"
+            status_style = {
+                "OVERWEIGHT": "red",
+                "UNDERWEIGHT": "yellow",
+                "ON_TARGET": "green",
+                "BUY": "cyan",
+            }.get(a.status, "white")
+
+            table.add_row(
+                a.ticker,
+                f"{a.current_weight * 100:.1f}%",
+                f"{a.target_weight * 100:.1f}%",
+                Text(f"{a.deviation * 100:+.1f}%", style=dev_color),
+                Text(a.status, style=status_style),
+                _format_money(a.dollar_amount, 0),
+                str(a.shares),
+            )
+
+        self.console.print(table)
 
     def print_alerts(self, alerts: list[Alert]) -> None:
         """Print alerts."""

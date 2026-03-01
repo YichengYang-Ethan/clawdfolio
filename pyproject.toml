@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "clawdfolio"
-version = "2.4.0"
+version = "2.5.0"
 description = "Production-grade quantitative portfolio toolkit — multi-broker aggregation, institutional risk analytics, options lifecycle management, and 20+ automated finance workflows"
 readme = "README.md"
 license = "MIT"

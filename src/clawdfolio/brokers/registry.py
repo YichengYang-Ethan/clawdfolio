@@ -51,6 +51,10 @@ def get_broker(name: str, config: BrokerConfig | None = None) -> BaseBroker:
     Raises:
         KeyError: If broker name is not registered
     """
+    from . import _ensure_registered
+
+    _ensure_registered()
+
     if name not in _BROKER_REGISTRY:
         available = ", ".join(_BROKER_REGISTRY.keys()) or "none"
         raise KeyError(f"Unknown broker '{name}'. Available brokers: {available}")
@@ -65,6 +69,9 @@ def list_brokers() -> list[str]:
     Returns:
         List of registered broker names
     """
+    from . import _ensure_registered
+
+    _ensure_registered()
     return list(_BROKER_REGISTRY.keys())
 
 

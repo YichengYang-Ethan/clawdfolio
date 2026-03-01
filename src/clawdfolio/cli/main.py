@@ -19,6 +19,29 @@ def create_parser() -> argparse.ArgumentParser:
     """Create the argument parser."""
     from ..finance.workflows import category_choices
 
+    # Parent parser for shared flags (allows flags before or after subcommand).
+    # Uses SUPPRESS defaults so subparser values only override when explicitly provided.
+    parent_parser = argparse.ArgumentParser(add_help=False)
+    parent_parser.add_argument(
+        "--broker",
+        choices=["longport", "futu", "demo", "all"],
+        default=argparse.SUPPRESS,
+        help="Broker to use (default: all)",
+    )
+    parent_parser.add_argument(
+        "--output",
+        "-o",
+        choices=["console", "json"],
+        default=argparse.SUPPRESS,
+        help="Output format (default: console)",
+    )
+    parent_parser.add_argument(
+        "--config",
+        "-c",
+        default=argparse.SUPPRESS,
+        help="Path to config file",
+    )
+
     parser = argparse.ArgumentParser(
         prog="clawdfolio",
         description="Quantitative portfolio toolkit with multi-broker aggregation, risk analytics, and finance workflows",
@@ -54,7 +77,9 @@ def create_parser() -> argparse.ArgumentParser:
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
 
     # Summary command
-    summary_parser = subparsers.add_parser("summary", help="Show portfolio summary")
+    summary_parser = subparsers.add_parser(
+        "summary", help="Show portfolio summary", parents=[parent_parser]
+    )
     summary_parser.add_argument(
         "--top",
         "-n",
@@ -64,7 +89,9 @@ def create_parser() -> argparse.ArgumentParser:
     )
 
     # Quotes command
-    quotes_parser = subparsers.add_parser("quotes", help="Get real-time quotes")
+    quotes_parser = subparsers.add_parser(
+        "quotes", help="Get real-time quotes", parents=[parent_parser]
+    )
     quotes_parser.add_argument(
         "symbols",
         nargs="+",
@@ -72,7 +99,9 @@ def create_parser() -> argparse.ArgumentParser:
     )
 
     # Risk command
-    risk_parser = subparsers.add_parser("risk", help="Show risk metrics")
+    risk_parser = subparsers.add_parser(
+        "risk", help="Show risk metrics", parents=[parent_parser]
+    )
     risk_parser.add_argument(
         "--detailed",
         "-d",
@@ -81,7 +110,9 @@ def create_parser() -> argparse.ArgumentParser:
     )
 
     # Alerts command
-    alerts_parser = subparsers.add_parser("alerts", help="Show current alerts")
+    alerts_parser = subparsers.add_parser(
+        "alerts", help="Show current alerts", parents=[parent_parser]
+    )
     alerts_parser.add_argument(
         "--severity",
         choices=["info", "warning", "critical"],
@@ -89,7 +120,8 @@ def create_parser() -> argparse.ArgumentParser:
     )
     alerts_parser.add_argument(
         "--notify",
-        choices=["telegram", "email"],
+        action="store_true",
+        default=False,
         help="Send alerts via notification channel",
     )
     alerts_parser.add_argument(
@@ -114,7 +146,9 @@ def create_parser() -> argparse.ArgumentParser:
     )
 
     # Earnings command
-    earnings_parser = subparsers.add_parser("earnings", help="Show upcoming earnings")
+    earnings_parser = subparsers.add_parser(
+        "earnings", help="Show upcoming earnings", parents=[parent_parser]
+    )
     earnings_parser.add_argument(
         "--days",
         type=int,
@@ -124,7 +158,7 @@ def create_parser() -> argparse.ArgumentParser:
 
     # Export command
     export_parser = subparsers.add_parser(
-        "export", help="Export portfolio data to CSV or JSON files"
+        "export", help="Export portfolio data to CSV or JSON files", parents=[parent_parser]
     )
     export_parser.add_argument(
         "what",
@@ -144,7 +178,9 @@ def create_parser() -> argparse.ArgumentParser:
     )
 
     # DCA command
-    dca_parser = subparsers.add_parser("dca", help="DCA signals and analysis")
+    dca_parser = subparsers.add_parser(
+        "dca", help="DCA signals and analysis", parents=[parent_parser]
+    )
     dca_parser.add_argument(
         "symbol",
         nargs="?",
@@ -167,6 +203,7 @@ def create_parser() -> argparse.ArgumentParser:
     options_parser = subparsers.add_parser(
         "options",
         help="Option quote, chain, expiry list, and buyback monitor",
+        parents=[parent_parser],
     )
     options_subparsers = options_parser.add_subparsers(
         dest="options_command",
@@ -237,7 +274,9 @@ def create_parser() -> argparse.ArgumentParser:
     )
 
     # Bubble command
-    bubble_parser = subparsers.add_parser("bubble", help="Market Bubble Index")
+    bubble_parser = subparsers.add_parser(
+        "bubble", help="Market Bubble Index", parents=[parent_parser]
+    )
     bubble_parser.add_argument(
         "--export-json",
         action="store_true",
@@ -245,16 +284,24 @@ def create_parser() -> argparse.ArgumentParser:
     )
 
     # Factors command
-    subparsers.add_parser("factors", help="Fama-French factor exposure analysis")
+    subparsers.add_parser(
+        "factors", help="Fama-French factor exposure analysis", parents=[parent_parser]
+    )
 
     # Stress command
-    subparsers.add_parser("stress", help="Leverage-adjusted stress testing")
+    subparsers.add_parser(
+        "stress", help="Leverage-adjusted stress testing", parents=[parent_parser]
+    )
 
     # Greeks command
-    subparsers.add_parser("greeks", help="Aggregate portfolio-level Greeks")
+    subparsers.add_parser(
+        "greeks", help="Aggregate portfolio-level Greeks", parents=[parent_parser]
+    )
 
     # Snapshot command
-    snapshot_parser = subparsers.add_parser("snapshot", help="Save portfolio snapshot to history")
+    snapshot_parser = subparsers.add_parser(
+        "snapshot", help="Save portfolio snapshot to history", parents=[parent_parser]
+    )
     snapshot_parser.add_argument(
         "--file",
         help="Path to history CSV (default: ~/.clawdfolio/history.csv)",
@@ -262,7 +309,7 @@ def create_parser() -> argparse.ArgumentParser:
 
     # Performance command
     performance_parser = subparsers.add_parser(
-        "performance", help="Show portfolio performance over time"
+        "performance", help="Show portfolio performance over time", parents=[parent_parser]
     )
     performance_parser.add_argument(
         "--period",
@@ -276,7 +323,9 @@ def create_parser() -> argparse.ArgumentParser:
     )
 
     # Compare command
-    compare_parser = subparsers.add_parser("compare", help="Compare portfolio vs benchmark")
+    compare_parser = subparsers.add_parser(
+        "compare", help="Compare portfolio vs benchmark", parents=[parent_parser]
+    )
     compare_parser.add_argument(
         "benchmark",
         help="Benchmark ticker (e.g. SPY, QQQ)",
@@ -296,6 +345,7 @@ def create_parser() -> argparse.ArgumentParser:
     finance_parser = subparsers.add_parser(
         "finance",
         help="Run migrated local finance workflows (v2)",
+        parents=[parent_parser],
     )
     finance_subparsers = finance_parser.add_subparsers(
         dest="finance_command",
@@ -344,27 +394,42 @@ def create_parser() -> argparse.ArgumentParser:
         help="Force sync scripts before run",
     )
 
+    # History command
+    history_parser = subparsers.add_parser(
+        "history", help="Portfolio history management", parents=[parent_parser]
+    )
+    history_subparsers = history_parser.add_subparsers(dest="history_command")
+    history_subparsers.add_parser("snapshot", help="Save snapshot")
+    history_show = history_subparsers.add_parser("show", help="Show history")
+    history_show.add_argument("--days", type=int, default=30)
+    history_perf = history_subparsers.add_parser("performance", help="Performance metrics")
+    history_perf.add_argument("--days", type=int, default=30)
+
+    # Rebalance command
+    rebalance_parser = subparsers.add_parser(
+        "rebalance", help="Portfolio rebalancing", parents=[parent_parser]
+    )
+    rebalance_subparsers = rebalance_parser.add_subparsers(dest="rebalance_command")
+    rebalance_subparsers.add_parser("check", help="Check deviations")
+    rebalance_propose = rebalance_subparsers.add_parser("propose", help="Propose allocation")
+    rebalance_propose.add_argument("--amount", type=float, required=True)
+
+    # Dashboard command
+    dashboard_parser = subparsers.add_parser(
+        "dashboard", help="Launch Streamlit dashboard", parents=[parent_parser]
+    )
+    dashboard_parser.add_argument("--port", type=int, default=8501)
+
     return parser
 
 
 def _get_portfolio(args: Namespace):  # type: ignore[no-untyped-def]
     """Get portfolio from the selected broker(s)."""
     from ..brokers import get_broker
-    from ..brokers.demo import DemoBroker  # noqa: F401 - registers broker
 
     if args.broker == "all":
         from ..brokers.aggregator import aggregate_portfolios
         from ..core.config import load_config
-
-        # Import broker modules to register them
-        try:
-            from ..brokers.futu import FutuBroker  # noqa: F401
-        except ImportError:
-            pass
-        try:
-            from ..brokers.longport import LongportBroker  # noqa: F401
-        except ImportError:
-            pass
 
         config = load_config(getattr(args, "config", None))
         brokers = []
@@ -550,9 +615,10 @@ def cmd_alerts(args: Namespace) -> int:
                     print()
 
         # Send notifications if requested
-        notify_method = getattr(args, "notify", None)
-        if notify_method and all_alerts:
-            _send_alert_notifications(args, config, all_alerts, notify_method)
+        if getattr(args, "notify", False) and all_alerts:
+            # Determine method from config: use telegram if configured, else email
+            method = "telegram" if config.notifications.telegram else "email"
+            _send_alert_notifications(args, config, all_alerts, method)
 
         return 0
     except Exception as e:
@@ -632,7 +698,6 @@ def cmd_earnings(args: Namespace) -> int:
 def cmd_export(args: Namespace) -> int:
     """Handle export command."""
     from ..brokers import get_broker
-    from ..brokers.demo import DemoBroker  # noqa: F401
     from ..output.export import (
         export_alerts_csv,
         export_alerts_json,
@@ -1276,6 +1341,232 @@ def cmd_finance(args: Namespace) -> int:
     return 1
 
 
+def cmd_history(args: Namespace) -> int:
+    """Handle history command."""
+    from ..output.json import to_json
+    from ..storage.repository import get_performance, get_snapshots, save_snapshot
+
+    if not getattr(args, "history_command", None):
+        print("Usage: clawdfolio history [snapshot|show|performance]")
+        return 1
+
+    if args.history_command == "snapshot":
+        try:
+            portfolio = _get_portfolio(args)
+            snap = save_snapshot(portfolio)
+            if args.output == "json":
+                print(
+                    to_json(
+                        {
+                            "timestamp": snap.timestamp.isoformat(),
+                            "net_assets": snap.net_assets,
+                            "cash": snap.cash,
+                            "market_value": snap.market_value,
+                        }
+                    )
+                )
+            else:
+                print(f"Snapshot saved: NAV=${snap.net_assets:,.2f} at {snap.timestamp}")
+            return 0
+        except Exception as e:
+            print(f"Error: {e}", file=sys.stderr)
+            return 1
+
+    if args.history_command == "show":
+        days = getattr(args, "days", 30)
+        snapshots = get_snapshots(days=days)
+        if args.output == "json":
+            print(
+                to_json(
+                    [
+                        {
+                            "timestamp": s.timestamp.isoformat(),
+                            "net_assets": s.net_assets,
+                            "cash": s.cash,
+                            "market_value": s.market_value,
+                            "day_pnl": s.day_pnl,
+                        }
+                        for s in snapshots
+                    ]
+                )
+            )
+        else:
+            from ..output.console import RICH_AVAILABLE, ConsoleFormatter
+
+            if RICH_AVAILABLE:
+                ConsoleFormatter().print_history(snapshots)
+            elif not snapshots:
+                print("No snapshot history available.")
+            else:
+                for s in snapshots:
+                    print(
+                        f"{s.timestamp:%Y-%m-%d %H:%M}  "
+                        f"NAV=${s.net_assets:,.2f}  P&L=${s.day_pnl or 0:,.0f}"
+                    )
+        return 0
+
+    if args.history_command == "performance":
+        days = getattr(args, "days", 30)
+        metrics = get_performance(days=days)
+        if metrics is None:
+            print("No snapshot data available. Run 'clawdfolio history snapshot' first.")
+            return 1
+        if args.output == "json":
+            print(
+                to_json(
+                    {
+                        "total_snapshots": metrics.total_snapshots,
+                        "starting_nav": metrics.starting_nav,
+                        "ending_nav": metrics.ending_nav,
+                        "total_return_pct": metrics.total_return_pct,
+                        "max_drawdown_pct": metrics.max_drawdown_pct,
+                        "avg_daily_pnl": metrics.avg_daily_pnl,
+                        "best_day_pnl": metrics.best_day_pnl,
+                        "worst_day_pnl": metrics.worst_day_pnl,
+                        "positive_days": metrics.positive_days,
+                        "negative_days": metrics.negative_days,
+                    }
+                )
+            )
+        else:
+            from ..output.console import RICH_AVAILABLE, ConsoleFormatter
+
+            if RICH_AVAILABLE:
+                ConsoleFormatter().print_performance(metrics)
+            else:
+                print(f"Return: {metrics.total_return_pct * 100:+.2f}%")
+                print(f"Max Drawdown: {metrics.max_drawdown_pct * 100:.2f}%")
+        return 0
+
+    print(f"Unknown history subcommand: {args.history_command}", file=sys.stderr)
+    return 1
+
+
+def cmd_rebalance(args: Namespace) -> int:
+    """Handle rebalance command."""
+    from ..core.config import load_config
+    from ..output.json import to_json
+    from ..strategies.rebalance import (
+        TargetAllocation,
+        calculate_rebalance,
+        propose_dca_allocation,
+    )
+
+    if not getattr(args, "rebalance_command", None):
+        print("Usage: clawdfolio rebalance [check|propose]")
+        return 1
+
+    config = load_config(getattr(args, "config", None))
+    if not config.rebalancing.targets:
+        print("No rebalancing targets configured. Add targets to config file.")
+        return 1
+
+    targets = [
+        TargetAllocation(ticker=t.ticker, weight=t.weight)
+        for t in config.rebalancing.targets
+    ]
+
+    try:
+        portfolio = _get_portfolio(args)
+
+        if args.rebalance_command == "check":
+            actions = calculate_rebalance(
+                portfolio, targets, tolerance=config.rebalancing.tolerance
+            )
+            if args.output == "json":
+                print(
+                    to_json(
+                        [
+                            {
+                                "ticker": a.ticker,
+                                "current_weight": a.current_weight,
+                                "target_weight": a.target_weight,
+                                "deviation": a.deviation,
+                                "status": a.status,
+                                "dollar_amount": a.dollar_amount,
+                                "shares": a.shares,
+                            }
+                            for a in actions
+                        ]
+                    )
+                )
+            else:
+                from ..output.console import RICH_AVAILABLE, ConsoleFormatter
+
+                if RICH_AVAILABLE:
+                    ConsoleFormatter().print_rebalance(actions)
+                else:
+                    for a in actions:
+                        print(
+                            f"{a.ticker}: {a.current_weight * 100:.1f}% → "
+                            f"{a.target_weight * 100:.1f}% ({a.status})"
+                        )
+            return 0
+
+        if args.rebalance_command == "propose":
+            amount = args.amount
+            actions = propose_dca_allocation(portfolio, targets, amount)
+            if args.output == "json":
+                print(
+                    to_json(
+                        [
+                            {
+                                "ticker": a.ticker,
+                                "current_weight": a.current_weight,
+                                "target_weight": a.target_weight,
+                                "deviation": a.deviation,
+                                "status": a.status,
+                                "dollar_amount": a.dollar_amount,
+                                "shares": a.shares,
+                            }
+                            for a in actions
+                        ]
+                    )
+                )
+            else:
+                from ..output.console import RICH_AVAILABLE, ConsoleFormatter
+
+                if RICH_AVAILABLE:
+                    ConsoleFormatter().print_rebalance(actions)
+                else:
+                    for a in actions:
+                        print(f"{a.ticker}: ${a.dollar_amount:,.0f} ({a.shares} shares)")
+            return 0
+
+    except Exception as e:
+        print(f"Error: {e}", file=sys.stderr)
+        return 1
+
+    print(f"Unknown rebalance subcommand: {args.rebalance_command}", file=sys.stderr)
+    return 1
+
+
+def cmd_dashboard(args: Namespace) -> int:
+    """Handle dashboard command."""
+    try:
+        import streamlit  # noqa: F401
+    except ImportError:
+        print(
+            "Streamlit is not installed. Install with: pip install streamlit",
+            file=sys.stderr,
+        )
+        return 1
+
+    import subprocess
+
+    port = getattr(args, "port", 8501)
+    print(f"Launching dashboard on port {port}...")
+    try:
+        subprocess.run(
+            ["streamlit", "run", "--server.port", str(port)],
+            check=True,
+        )
+    except Exception as e:
+        print(f"Error launching dashboard: {e}", file=sys.stderr)
+        return 1
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     """Main entry point."""
     from ..core.config import load_config
@@ -1317,6 +1608,9 @@ def main(argv: list[str] | None = None) -> int:
         "stress": cmd_stress,
         "greeks": cmd_greeks,
         "finance": cmd_finance,
+        "history": cmd_history,
+        "rebalance": cmd_rebalance,
+        "dashboard": cmd_dashboard,
     }
 
     handler = commands.get(args.command)

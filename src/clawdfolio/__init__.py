@@ -1,6 +1,6 @@
 """Clawdfolio — quantitative portfolio toolkit with multi-broker aggregation, risk analytics, and options strategy management."""
 
-__version__ = "2.4.0"
+__version__ = "2.5.0"
 __author__ = "YICHENG YANG"
 
 from .core.config import Config, load_config

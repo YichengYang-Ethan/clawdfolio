@@ -65,8 +65,27 @@ class OptionBuybackConfig:
 class NotificationConfig:
     """Notification channel configuration."""
 
+    enabled: bool = False
+    gateway_url: str = "http://localhost:18789"
+    timeout: int = 10
     telegram: dict[str, str] = field(default_factory=dict)
     email: dict[str, str] = field(default_factory=dict)
+
+
+@dataclass
+class RebalanceTarget:
+    """Single rebalancing target allocation."""
+
+    ticker: str
+    weight: float
+
+
+@dataclass
+class RebalancingConfig:
+    """Portfolio rebalancing configuration."""
+
+    tolerance: float = 0.03
+    targets: list[RebalanceTarget] = field(default_factory=list)
 
 
 @dataclass
@@ -92,6 +111,9 @@ class Config:
 
     # Notification settings
     notifications: NotificationConfig = field(default_factory=NotificationConfig)
+
+    # Rebalancing settings
+    rebalancing: RebalancingConfig = field(default_factory=RebalancingConfig)
 
     # Output settings
     output_format: str = "console"  # console, json
@@ -171,8 +193,27 @@ class Config:
         # Parse notifications
         notif_data = data.get("notifications", {})
         notifications = NotificationConfig(
+            enabled=bool(notif_data.get("enabled", False)),
+            gateway_url=str(notif_data.get("gateway_url", "http://localhost:18789")),
+            timeout=int(notif_data.get("timeout", 10)),
             telegram=dict(notif_data.get("telegram", {})),
             email={k: str(v) for k, v in notif_data.get("email", {}).items()},
+        )
+
+        # Parse rebalancing
+        rebal_data = data.get("rebalancing", {})
+        rebal_targets: list[RebalanceTarget] = []
+        for item in rebal_data.get("targets", []):
+            if not isinstance(item, dict):
+                continue
+            ticker = item.get("ticker")
+            weight = item.get("weight")
+            if not ticker or weight is None:
+                continue
+            rebal_targets.append(RebalanceTarget(ticker=str(ticker), weight=float(weight)))
+        rebalancing = RebalancingConfig(
+            tolerance=float(rebal_data.get("tolerance", 0.03)),
+            targets=rebal_targets,
         )
 
         return cls(
@@ -184,6 +225,7 @@ class Config:
             leveraged_etfs=leveraged_etfs,
             option_buyback=option_buyback,
             notifications=notifications,
+            rebalancing=rebalancing,
             output_format=data.get("output_format", "console"),
             verbose=data.get("verbose", False),
         )
@@ -233,8 +275,18 @@ class Config:
                 ],
             },
             "notifications": {
+                "enabled": self.notifications.enabled,
+                "gateway_url": self.notifications.gateway_url,
+                "timeout": self.notifications.timeout,
                 "telegram": self.notifications.telegram,
                 "email": self.notifications.email,
+            },
+            "rebalancing": {
+                "tolerance": self.rebalancing.tolerance,
+                "targets": [
+                    {"ticker": t.ticker, "weight": t.weight}
+                    for t in self.rebalancing.targets
+                ],
             },
             "output_format": self.output_format,
             "verbose": self.verbose,
