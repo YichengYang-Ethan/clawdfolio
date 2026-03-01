@@ -64,9 +64,6 @@ clawdfolio earnings                    # Upcoming earnings calendar
 clawdfolio dca AAPL                    # DCA analysis
 ```
 
-<details>
-<summary><strong>Example Output: <code>clawdfolio summary</code></strong></summary>
-
 ```
 ╔══════════════════════════════════════════════════════════╗
 ║                  Portfolio Summary                       ║
@@ -83,8 +80,6 @@ clawdfolio dca AAPL                    # DCA analysis
 ║  QQQ       $3,520.00    8.4%   +22.3%                  ║
 ╚══════════════════════════════════════════════════════════╝
 ```
-
-</details>
 
 ### Options Commands
 
