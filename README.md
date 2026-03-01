@@ -7,9 +7,10 @@
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+
 English | [中文](README_CN.md)
 
-> **Production-grade quantitative portfolio toolkit** — multi-broker aggregation, institutional risk analytics, options lifecycle management, and 20+ automated finance workflows.
+> **Production-grade quantitative portfolio toolkit** — multi-broker aggregation, institutional risk analytics, portfolio rebalancing, options lifecycle management, and 20+ automated finance workflows.
 
 ---
 
@@ -21,24 +22,35 @@ English | [中文](README_CN.md)
 | Basic P&L tracking | VaR, Sharpe, Beta, Max Drawdown, HHI |
 | Single broker view | Multi-broker aggregation |
 | Spreadsheet alerts | Smart RSI / price / P&L alerts |
-| No extensibility | Python API + CLI |
+| No rebalancing | Target allocation tracking + DCA proposals |
+| No extensibility | Python API + CLI + Streamlit dashboard |
 
 ---
 
 ## Features
 
+### Core Portfolio Management
 - **Multi-Broker Support** — Longport (Longbridge), Moomoo/Futu, or demo mode
-- **Risk Analytics** — Volatility, Beta, Sharpe Ratio, Value at Risk, Max Drawdown, GARCH forecasting
-- **Bubble Risk Score** — Real-time market bubble detection powered by [Market-Bubble-Index-Dashboard](https://github.com/YichengYang-Ethan/Market-Bubble-Index-Dashboard), with SMA deviation, trend acceleration, and volatility regime analysis
-- **Risk-Driven Covered Call Strategy** — Backtested over 11 years (2014-2026): sell CC only when Risk Score >= 66, achieving **83% win rate** and **+3.0% annualized alpha** over buy-and-hold
-- **Technical Analysis** — RSI, SMA, EMA, Bollinger Bands
+- **Portfolio History** — Snapshot tracking, NAV curves, performance metrics over time
+- **Portfolio Rebalancing** — Target allocation deviations, DCA-aware rebalance proposals
+- **Smart Alerts** — Price movements, RSI extremes, P&L thresholds with notification support
+
+### Risk & Analytics
+- **Risk Analytics** — Volatility, Beta, Sharpe/Sortino, VaR/CVaR, Max Drawdown, GARCH forecasting
 - **Concentration Analysis** — HHI index, sector exposure, correlation warnings
-- **Stress Testing** — 5 historical scenarios (COVID crash, 2022 bear market, etc.) with leveraged ETF awareness
-- **Smart Alerts** — Price movements, RSI extremes, P&L thresholds
+- **Stress Testing** — 5 historical scenarios (COVID crash, 2022 bear, etc.) with leveraged ETF awareness
+- **Technical Analysis** — RSI, SMA, EMA, Bollinger Bands
+- **Fama-French Factors** — 3-factor exposure analysis with alpha estimation
+
+### Options & Strategies
+- **Options Toolkit** — Real-time Greeks, option chain snapshots, buyback trigger monitor
+- **Bubble Risk Score** — Composite market risk indicator ([Market-Bubble-Index-Dashboard](https://github.com/YichengYang-Ethan/Market-Bubble-Index-Dashboard))
+- **Risk-Driven Covered Call** — Backtested 11 years: **83% win rate**, **+3.0% annualized alpha**
+
+### Automation
+- **20+ Finance Workflows** — Reports, alerts, market intel, broker snapshots
 - **Earnings Calendar** — Track upcoming earnings for holdings
-- **Options Toolkit** — Option quote/Greeks, option chain snapshot, buyback trigger monitor
-- **Options Strategy Playbook (v2.1)** — Covered Call and Sell Put lifecycle management with delta/gamma/margin guardrails
-- **Finance Workflow Suite** — 20 production workflows for reports, alerts, market intel, and broker snapshots
+- **Dashboard** — Streamlit-powered interactive dashboard
 
 ---
 
@@ -47,48 +59,70 @@ English | [中文](README_CN.md)
 ### Installation
 
 ```bash
-pip install clawdfolio                  # Core
+pip install clawdfolio                  # Core (demo broker included)
 pip install clawdfolio[longport]        # + Longport broker
 pip install clawdfolio[futu]            # + Moomoo/Futu broker
-pip install clawdfolio[all]             # All brokers
+pip install clawdfolio[all]             # Everything
 ```
 
-### CLI Usage
+### CLI
 
 ```bash
+# Portfolio
 clawdfolio summary                     # Portfolio overview
-clawdfolio risk                        # Risk metrics (VaR, Sharpe, Beta, etc.)
+clawdfolio summary --broker demo       # Use demo broker
+clawdfolio risk --detailed             # Risk metrics with RSI, sectors, GARCH
+
+# Market data
 clawdfolio quotes AAPL TSLA NVDA       # Real-time quotes
 clawdfolio alerts                      # Check alerts
 clawdfolio earnings                    # Upcoming earnings calendar
-clawdfolio dca AAPL                    # DCA analysis
-```
 
-```
-╔══════════════════════════════════════════════════════════╗
-║                  Portfolio Summary                       ║
-╠══════════════════════════════════════════════════════════╣
-║  Net Assets:     $41,863.57    Day Change:   +$327.42   ║
-║  Total P&L:      +$6,847.23   Return:       +19.55%    ║
-║  Positions:      15            Brokers:      2          ║
-╠══════════════════════════════════════════════════════════╣
-║  Top Holdings                                            ║
-║  TQQQ     $11,058.00   26.4%   +32.1%                  ║
-║  NVDA      $5,280.00   12.6%   +45.2%                  ║
-║  AAPL      $4,125.00    9.9%   +12.8%                  ║
-║  MSFT      $3,840.00    9.2%   +15.6%                  ║
-║  QQQ       $3,520.00    8.4%   +22.3%                  ║
-╚══════════════════════════════════════════════════════════╝
-```
+# History & rebalancing
+clawdfolio history snapshot            # Save portfolio snapshot
+clawdfolio history show --days 30      # View NAV history
+clawdfolio history performance         # Performance metrics
+clawdfolio rebalance check             # Check target deviations
+clawdfolio rebalance propose --amount 5000  # DCA allocation proposal
 
-### Options Commands
+# Analysis
+clawdfolio dca AAPL --months 12        # DCA backtest
+clawdfolio stress                      # Stress test scenarios
+clawdfolio factors                     # Fama-French factor exposure
+clawdfolio bubble                      # Market bubble index
 
-```bash
+# Options
 clawdfolio options expiries TQQQ
 clawdfolio options quote TQQQ --expiry 2026-06-18 --strike 60 --type C
-clawdfolio options chain TQQQ --expiry 2026-06-18 --side both --limit 10
-clawdfolio options buyback             # Trigger check from config
+clawdfolio options chain TQQQ --expiry 2026-06-18
+
+# Dashboard
+clawdfolio dashboard                   # Launch Streamlit dashboard
 ```
+
+**Example output** (`clawdfolio summary --broker demo`):
+
+```
+╭──────────────────────── Portfolio Summary ────────────────────────╮
+│ Net Assets: $100,153.87                                          │
+│ Cash: $15,000.00                                                 │
+│ Market Value: $85,153.87                                         │
+│ Day P&L: +$556.88 (+0.56%)                                       │
+╰──────────────────────────────────────────────────────────────────╯
+┏━━━━━━━━┳━━━━━━━━┳━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━━┓
+┃ Ticker ┃ Weight ┃ Shares ┃   Price ┃   Value ┃ Day P&L ┃ Total P&L ┃
+┡━━━━━━━━╇━━━━━━━━╇━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━━━┩
+│ SPY    │  21.1% │     40 │ $527.38 │ $21,095 │   +$399 │     +$495 │
+│ NVDA   │  12.1% │     25 │ $485.99 │ $12,150 │   +$210 │   +$1,650 │
+│ MSFT   │  11.2% │     30 │ $374.17 │ $11,225 │   $-125 │     +$125 │
+│ QQQ    │  10.9% │     25 │ $435.49 │ $10,887 │    $-70 │      +$12 │
+│ AAPL   │   8.7% │     50 │ $173.79 │  $8,689 │    $-42 │     +$289 │
+│ ...    │        │        │         │         │         │           │
+└────────┴────────┴────────┴─────────┴─────────┴─────────┴───────────┘
+```
+
+> Flags like `--broker`, `--output`, `--config` work before or after the subcommand:
+> `clawdfolio --broker demo summary` and `clawdfolio summary --broker demo` are equivalent.
 
 ### Python API
 
@@ -104,7 +138,7 @@ metrics = analyze_risk(portfolio)
 
 print(f"Net Assets: ${portfolio.net_assets:,.2f}")
 print(f"Sharpe Ratio: {metrics.sharpe_ratio:.2f}")
-print(f"VaR 95%: ${metrics.var_95:,.2f}")
+print(f"VaR 95%: {metrics.var_95:.2%}")
 ```
 
 ---
@@ -114,26 +148,27 @@ print(f"VaR 95%: ${metrics.var_95:,.2f}")
 | Metric | Description |
 |--------|-------------|
 | **Volatility** | 20-day and 60-day annualized, GARCH(1,1) forecast |
-| **Beta** | Correlation with SPY/QQQ |
+| **Beta** | Correlation with SPY/QQQ benchmarks |
 | **Sharpe Ratio** | Risk-adjusted returns |
 | **Sortino Ratio** | Downside-only risk-adjusted returns |
 | **VaR / CVaR** | Value at Risk (95%/99%) + Expected Shortfall |
 | **Max Drawdown** | Largest peak-to-trough decline |
 | **HHI** | Portfolio concentration index |
-| **Stress Testing** | COVID-19, 2022 bear, flash crash scenarios |
+| **Stress Testing** | COVID-19, 2022 bear, flash crash, rate shock scenarios |
 
 ---
 
-## Bubble Risk Score
+## Bubble Risk Score & Covered Call Strategy
 
-Integrated from [Market-Bubble-Index-Dashboard](https://github.com/YichengYang-Ethan/Market-Bubble-Index-Dashboard) — a real-time composite market risk indicator.
+<details>
+<summary><strong>Bubble Risk Score</strong> — Real-time composite market risk indicator</summary>
+
+Integrated from [Market-Bubble-Index-Dashboard](https://github.com/YichengYang-Ethan/Market-Bubble-Index-Dashboard).
 
 **Components:**
 - **SMA-200 Deviation** (0-40 pts) — How far the market has stretched above its 200-day moving average
 - **Trend Acceleration** (0-30 pts) — Polynomial-fit measure of parabolic price acceleration
 - **Volatility Regime** (0-30 pts) — Annualized realized volatility assessment
-
-**Regime Classification:**
 
 | Score | Regime | Action |
 |-------|--------|--------|
@@ -145,17 +180,17 @@ Integrated from [Market-Bubble-Index-Dashboard](https://github.com/YichengYang-E
 ```python
 from clawdfolio.analysis.bubble import fetch_bubble_risk
 
-risk = fetch_bubble_risk()  # from Dashboard API (with live-calc fallback)
+risk = fetch_bubble_risk()
 print(f"Risk Score: {risk.drawdown_risk_score:.1f} ({risk.regime})")
 print(f"Should sell CC: {risk.should_sell_cc}")
-print(f"Recommended delta: {risk.cc_delta}")
 ```
 
----
+</details>
 
-## Risk-Driven Covered Call Strategy
+<details>
+<summary><strong>Risk-Driven Covered Call Strategy</strong> — 83% win rate, +3.0% alpha (11-year backtest)</summary>
 
-A quantitative covered call strategy that uses the Bubble Risk Score to determine **when** to sell calls and at **what delta**. Designed for long-term holders of leveraged ETFs (TQQQ) or broad-market ETFs (QQQ/SPY).
+Uses Bubble Risk Score to determine **when** to sell calls and at **what delta**. Designed for long-term holders of leveraged ETFs (TQQQ) or broad-market ETFs (QQQ/SPY).
 
 **Backtested Results (2014-2026, 64 parameter combinations):**
 
@@ -166,10 +201,9 @@ A quantitative covered call strategy that uses the Bubble Risk Score to determin
 | Win rate | **83%** |
 | Annualized alpha | **+3.0%** over buy-and-hold |
 | Assignment rate | 1.5% (1 in 11 years) |
-| Signal type | Asymmetric — sell-call only |
 
 ```python
-from clawdfolio.strategies.covered_call import CoveredCallStrategy
+from clawdfolio.strategies.covered_call import CoveredCallStrategy, get_cc_recommendation
 
 strategy = CoveredCallStrategy(tickers=["TQQQ"])
 signals = strategy.check_signals()
@@ -178,42 +212,13 @@ for sig in signals:
     print(f"{sig.ticker}: {sig.action.value} δ={sig.target_delta} "
           f"Risk={sig.bubble_risk_score:.0f} ({sig.regime})")
 
-# Or get a quick one-liner:
-from clawdfolio.strategies.covered_call import get_cc_recommendation
+# Quick one-liner:
 print(get_cc_recommendation("TQQQ"))
 ```
 
-<details>
-<summary><strong>Example Signal Dashboard Output</strong></summary>
-
-```
-━━━ Covered Call Signal Dashboard ━━━
-
-  TQQQ
-    Risk Score: 72.5 (high_risk)
-    Action:     sell_call
-    🔶 Risk signal active (72 ≥ 66) — sell CC at δ=0.25
-    Target:     δ=0.25, DTE=35
-    Mgmt:       PT=50%, SL=200%, Roll@14DTE
-    Strength:   33%
-```
+Strategy methodology: [Options Strategy Playbook v2.1](docs/OPTIONS_STRATEGY_PLAYBOOK_v2.1.md)
 
 </details>
-
----
-
-## Options Toolkit
-
-The built-in options module provides real-time Greeks inspection, chain analysis, and stateful buyback monitoring:
-
-| Command | Description |
-|---------|-------------|
-| `options expiries` | List available expiry dates for a symbol |
-| `options quote` | Single option quote with Greeks (delta, gamma, theta, vega, IV) |
-| `options chain` | Full option chain snapshot with filtering |
-| `options buyback` | Stateful trigger monitor for short option buyback |
-
-Strategy methodology is documented in the [Options Strategy Playbook](docs/OPTIONS_STRATEGY_PLAYBOOK_v2.1.md) — covering Covered Call and Sell Put lifecycle management with delta-based strike selection, roll/assignment rules, and margin guardrails.
 
 ---
 
@@ -232,7 +237,7 @@ export LONGPORT_ACCESS_TOKEN=your_access_token
 
 ### Config File (optional)
 
-Create `config.yaml`:
+Place at `~/.config/clawdfolio/config.yaml` or pass via `--config`:
 
 ```yaml
 brokers:
@@ -248,6 +253,23 @@ alerts:
   pnl_trigger: 500.0
   rsi_high: 80
   rsi_low: 20
+
+notifications:
+  enabled: true
+  gateway_url: "http://localhost:18789"
+  telegram:
+    bot_token: "your_token"
+    chat_id: "your_chat_id"
+
+rebalancing:
+  tolerance: 0.03
+  targets:
+    - ticker: QQQ
+      weight: 0.30
+    - ticker: SPY
+      weight: 0.25
+    - ticker: NVDA
+      weight: 0.15
 
 option_buyback:
   enabled: true
@@ -267,14 +289,14 @@ option_buyback:
 | Broker | Region | Status |
 |--------|--------|--------|
 | Demo | Global | Built-in |
-| Longport | US/HK/SG | Optional |
-| Moomoo/Futu | US/HK/SG | Optional |
+| Longport | US/HK/SG | `pip install clawdfolio[longport]` |
+| Moomoo/Futu | US/HK/SG | `pip install clawdfolio[futu]` |
 
 ---
 
 ## Finance Workflows
 
-20 production workflows migrated from live trading infrastructure, organized by category:
+20 production workflows migrated from live trading infrastructure:
 
 | Category | Examples |
 |----------|---------|
@@ -283,11 +305,11 @@ option_buyback:
 | **Alerts & Monitors** | Price/RSI alerts, option buyback trigger |
 | **Market Intelligence** | Real-time quotes, earnings calendar, market news |
 | **Broker Snapshots** | Longport / Moomoo asset summaries |
-| **Strategy** | DCA proposals |
+| **Strategy** | DCA proposals, rebalancing |
 
 ```bash
-clawdfolio finance list                # Browse all workflows by category
-clawdfolio finance init                # Bootstrap ~/.clawdfolio/finance workspace
+clawdfolio finance list                # Browse all workflows
+clawdfolio finance init                # Bootstrap workspace
 clawdfolio finance run <workflow_id>   # Execute a workflow
 ```
 
@@ -296,13 +318,23 @@ clawdfolio finance run <workflow_id>   # Execute a workflow
 <details>
 <summary><strong>Changelog</strong></summary>
 
+### v2.5.0 (2026-03-01)
+
+- **Broker auto-discovery** — `get_broker("demo")` works from Python API without manual imports
+- **History commands** — `history snapshot`, `history show`, `history performance` for NAV tracking
+- **Rebalance commands** — `rebalance check` and `rebalance propose --amount` for target allocation
+- **Dashboard command** — `clawdfolio dashboard` launches Streamlit UI
+- **RebalancingConfig** — New `rebalancing.targets` and `rebalancing.tolerance` in config
+- **NotificationConfig** — Added `enabled`, `gateway_url`, `timeout` fields
+- **CLI argument position fix** — `--broker`, `--output`, `--config` work before or after subcommand
+- **ConsoleFormatter** — Rich-formatted `print_history`, `print_performance`, `print_rebalance`
+
 ### v2.4.0 (2026-02-28)
 
 - **Bubble Risk Score** — Real-time drawdown risk scoring (0-100) integrated from Market-Bubble-Index-Dashboard
 - **Risk-driven Covered Call strategy** — Quantitative CC signals: 83% win rate, +3.0% alpha (11-year backtest)
 - `CoveredCallStrategy`, `check_cc_signals()`, `get_cc_recommendation()` convenience API
 - `fetch_bubble_risk()` with Dashboard API + live-calc fallback
-- Comprehensive test coverage for bubble risk and covered call modules
 
 ### v2.3.0 (2026-02-16)
 
@@ -310,36 +342,25 @@ clawdfolio finance run <workflow_id>   # Execute a workflow
 - Portfolio RSI in `analyze_risk()` output
 - `clawdfolio export` CLI command (CSV/JSON)
 - Dynamic US trading calendar with algorithmic holiday generation
-- Batched SPY/QQQ benchmark fetching via `get_history_multi()`
-- O(1) position lookup via `_ticker_index`
-- `calculate_ema()` vectorized with `pd.Series.ewm()`
-- Fixed invalid yfinance period strings in DCA calculation
 - Coverage enforcement at 48%, Python 3.13 in CI, `pip-audit` scanning
 
 ### v2.2.0 (2026-02-14)
 
-- Thread-safe market data caching (`threading.Lock`)
+- Thread-safe market data caching
 - Batch quote fetching via `yf.download` with per-ticker fallback
-- Shared `suppress_stdio` utility (DRY refactor)
-- Dynamic CLI version from `__version__`
 - PEP 561 compliance (`py.typed` marker)
-- Structured logging across core modules
-- Centralized ticker normalization (`_yf_symbol()`)
 - Config path migration to `clawdfolio` namespace (backward-compatible)
 
 ### v2.1.0 (2026-01-28)
 
-- Options Strategy Playbook v2.1 (`docs/OPTIONS_STRATEGY_PLAYBOOK_v2.1.md`)
+- Options Strategy Playbook v2.1
 - Research-to-execution framework for CC and Sell Put lifecycle
-- Explicit gamma-risk, margin, leverage, and assignment decision rules
 
 ### v2.0.0 (2026-01-15)
 
-- Full finance migration: 20 production workflows from live trading infrastructure
+- Full finance migration: 20 production workflows
 - `clawdfolio finance` command group (list, init, run)
-- Mutable workspace bootstrap (`~/.clawdfolio/finance`)
 - Options quote/chain/buyback monitor
-- Wilder RSI smoothing, Longport symbol fix, yfinance hardening
 
 See [CHANGELOG.md](CHANGELOG.md) for full details.
 
@@ -349,7 +370,18 @@ See [CHANGELOG.md](CHANGELOG.md) for full details.
 
 ## Contributing
 
-Contributions welcome! Please submit a Pull Request.
+Contributions welcome! Please:
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/my-feature`)
+3. Run tests (`pytest tests/ -v`) and lint (`ruff check src/ tests/`)
+4. Submit a Pull Request
+
+```bash
+pip install -e ".[dev]"    # Install with dev dependencies
+pytest tests/ -v           # Run tests
+ruff check src/ tests/     # Lint
+```
 
 ## License
 
@@ -357,6 +389,7 @@ MIT License — see [LICENSE](LICENSE)
 
 ## Links
 
+- [PyPI Package](https://pypi.org/project/clawdfolio/)
 - [GitHub Repository](https://github.com/YichengYang-Ethan/clawdfolio)
 - [Report Issues](https://github.com/YichengYang-Ethan/clawdfolio/issues)
 - [Options Strategy Playbook](docs/OPTIONS_STRATEGY_PLAYBOOK_v2.1.md)
