@@ -1,0 +1,47 @@
+site_name: Clawdfolio
+site_url: https://yichengyang-ethan.github.io/clawdfolio/
+repo_url: https://github.com/YichengYang-Ethan/clawdfolio
+repo_name: YichengYang-Ethan/clawdfolio
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - toc.integrate
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.tabs.link
+    - content.code.annotation
+    - content.code.copy
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            show_root_heading: true
+            show_source: true
+
+nav:
+  - Home: index.md
+  - API Reference:
+    - Core: api/core.md
+    - Brokers: api/brokers.md
+    - Analysis: api/analysis.md
+    - Market: api/market.md
+    - Monitors: api/monitors.md
+    - Strategies: api/strategies.md
+  - Playbooks:
+    - Options Strategy: playbooks/OPTIONS_STRATEGY_PLAYBOOK_v2.1.md

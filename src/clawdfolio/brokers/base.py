@@ -120,13 +120,27 @@ class BaseBroker(ABC):
         pass
 
     def __enter__(self) -> BaseBroker:
-        """Context manager entry."""
+        """Context manager entry.
+
+        Establishes the broker connection.
+
+        Returns:
+            The broker instance.
+        """
         self.connect()
         return self
 
     def __exit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
-        """Context manager exit."""
+        """Context manager exit.
+
+        Closes the broker connection.
+        """
         self.disconnect()
 
     def __repr__(self) -> str:
+        """Return a string representation of the broker.
+
+        Returns:
+            A string showing the class name and connection status.
+        """
         return f"<{self.__class__.__name__}(connected={self.is_connected()})>"
