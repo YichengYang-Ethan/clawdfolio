@@ -70,7 +70,15 @@ def initialize_workspace(
     scripts_source = source / "scripts"
     archive_source = source / "archive_scripts"
     if not scripts_source.exists():
-        raise FileNotFoundError(f"Missing bundled scripts directory: {scripts_source}")
+        # Bundled scripts not available (e.g., lightweight install without legacy_finance).
+        # Create the workspace directory structure but skip script sync.
+        return FinanceWorkspaceInit(
+            workspace=root,
+            scripts_synced=0,
+            archive_synced=0,
+            config_created=False,
+            data_created=False,
+        )
 
     scripts_target = root / "scripts"
     archive_target = root / "archive_scripts"
