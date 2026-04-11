@@ -70,3 +70,6 @@ data/
 # Keep bundled legacy finance libs for v2 migration
 !src/clawdfolio/legacy_finance/scripts/lib/
 !src/clawdfolio/legacy_finance/scripts/lib/**
+
+# Example output directories
+examples/_dpp_plots/
